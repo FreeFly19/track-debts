@@ -12,5 +12,4 @@ public class UserController {
     UserDto register(@RequestBody @Valid RegisterUserCommand command) {
         return new UserDto(1, command.getEmail());
     }
-
 }

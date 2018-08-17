@@ -1,5 +1,6 @@
 package com.freefly19.trackdebts.user;
 
+import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +46,42 @@ public class UserControllerIntegrationTest {
                 .perform(post("/users")
                         .content("{\"email\": \"my.email@test.com\"}")
                         .contentType(MediaType.APPLICATION_JSON_UTF8))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void shouldReturnBadRequestIfPasswordShortenThan8Symbols() throws Exception {
+        mockMvc
+                .perform(post("/users")
+                        .content("{\n" +
+                                "  \"email\": \"my.email@test.com\", \n" +
+                                "  \"password\": \"_small_\"\n" +
+                                "}")
+                        .contentType(MediaType.APPLICATION_JSON_UTF8))
+                .andExpect(status().isBadRequest());
+    }
+    @Test
+    public void shouldReturnBadRequestIfPasswordLongerThan255Symbols() throws Exception {
+        mockMvc
+                .perform(post("/users")
+                        .content("{\n" +
+                                "  \"email\": \"my.email@test.com\", \n" +
+                                "  \"password\": \"" + RandomStringUtils.randomAlphabetic(256) + "\"\n" +
+                                "}")
+                        .contentType(MediaType.APPLICATION_JSON_UTF8))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void shouldReturnBadRequestIfEmailIsInvalid() throws Exception {
+        mockMvc
+                .perform(post("/users")
+                        .content("{\n" +
+                                "  \"email\": \"my.email\", \n" +
+                                "  \"password\": \"a strong password\"\n" +
+                                "}")
+                        .contentType(MediaType.APPLICATION_JSON_UTF8)
+                )
                 .andExpect(status().isBadRequest());
     }
 }
