@@ -6,4 +6,9 @@ import lombok.Value;
 class UserDto {
     private final long id;
     private final String email;
+
+    UserDto(User user) {
+        this.id = user.getId();
+        this.email = user.getEmail();
+    }
 }
