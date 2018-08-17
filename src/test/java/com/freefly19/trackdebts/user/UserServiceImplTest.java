@@ -11,6 +11,7 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.data.domain.Example;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
 
@@ -23,6 +24,9 @@ public class UserServiceImplTest {
     @Mock
     private UserRepository userRepository;
 
+    @Mock
+    private PasswordEncoder passwordEncoder;
+
 
     @Captor
     private ArgumentCaptor<User> userCaptor;
@@ -30,7 +34,7 @@ public class UserServiceImplTest {
 
     @Before
     public void init() {
-        userService = new UserServiceImpl(userRepository);
+        userService = new UserServiceImpl(userRepository, passwordEncoder);
     }
 
 
@@ -46,9 +50,11 @@ public class UserServiceImplTest {
                     return savingUser;
                 });
 
+        when(passwordEncoder.encode("not hashed yet")).thenReturn("hashed");
+
         Either<String, User> registration = userService.registerUser(RegisterUserCommand.builder()
                 .email("some@email.com")
-                .password("hashed").build());
+                .password("not hashed yet").build());
 
         Assert.assertTrue(registration.isRight());
         Assert.assertEquals(13L, registration.getRight().getId().longValue());
@@ -61,7 +67,12 @@ public class UserServiceImplTest {
         when(userRepository.findOne(Example.of(User.builder().email("some@email.com").build())))
                 .thenReturn(Optional.of(User.builder().id(13L).email("some@email.com").password("hashed").build()));
 
-        Either<String, User> registration = userService.registerUser(RegisterUserCommand.builder().email("some@email.com").build());
+        Either<String, User> registration =
+                userService.registerUser(
+                        RegisterUserCommand.builder()
+                                .email("some@email.com")
+                                .password("myWonderfulPassword")
+                                .build());
 
         Assert.assertTrue(registration.isLeft());
         Assert.assertTrue(StringContains.containsString("already exists").matches(registration.getLeft()));
