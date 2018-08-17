@@ -2,11 +2,17 @@ package com.freefly19.trackdebts.user;
 
 import lombok.*;
 
-@Getter @Setter
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
+@Data
+@Entity
 public class User {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     public Long id;
     public String email;
     public String password;

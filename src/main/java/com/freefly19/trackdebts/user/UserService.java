@@ -1,5 +1,7 @@
 package com.freefly19.trackdebts.user;
 
+import com.spencerwi.either.Either;
+
 public interface UserService {
-    User registerUser(RegisterUserCommand command);
+    Either<String, User> registerUser(RegisterUserCommand command);
 }

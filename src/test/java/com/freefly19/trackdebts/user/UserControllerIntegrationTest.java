@@ -1,5 +1,6 @@
 package com.freefly19.trackdebts.user;
 
+import com.spencerwi.either.Either;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -10,6 +11,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -25,18 +27,18 @@ public class UserControllerIntegrationTest {
     private UserService userService;
 
     @Test
-    public void shouldReturnOk() throws Exception {
+    public void shouldReturnWorkFine() throws Exception {
         when(userService.registerUser(
                 RegisterUserCommand.builder()
                         .email("some@email.com")
                         .password("MySuperPassword")
                         .build()
         )).thenReturn(
-                User.builder()
+                Either.right(User.builder()
                         .id(17L)
                         .email("some@email.com")
                         .password("MySuperPassword")
-                        .build()
+                        .build())
         );
 
         mockMvc
@@ -52,6 +54,22 @@ public class UserControllerIntegrationTest {
                 .andExpect(jsonPath("$.id").value(17))
                 .andExpect(jsonPath("$.email").value ("some@email.com"))
                 .andExpect(jsonPath("$.password").doesNotExist());
+    }
+    @Test
+    public void shouldReturnBadRequestWithMessageWhenErrorComeFromService() throws Exception {
+        when(userService.registerUser(any())).thenReturn(Either.left("Some Error"));
+
+        mockMvc
+                .perform(post("/users")
+                        .content("{\n" +
+                                "  \"email\": \"some@email.com\",\n" +
+                                "  \"password\": \"MySuperPassword\"\n" +
+                                "}")
+                        .contentType(MediaType.APPLICATION_JSON_UTF8)
+                        .accept(MediaType.APPLICATION_JSON_UTF8))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+                .andExpect(jsonPath("$.message").value("Some Error"));
     }
 
     @Test
