@@ -23,7 +23,6 @@ docker push freefly19/track-debts:<tag>
 To stop running container and drop image:
 ```
 docker rm -f track-debts
-docker pull freefly19/track-debts:<tag>
 ```
 Spin up container with:
 ```
