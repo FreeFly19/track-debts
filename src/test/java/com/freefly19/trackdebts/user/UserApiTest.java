@@ -1,5 +1,6 @@
 package com.freefly19.trackdebts.user;
 
+import com.freefly19.trackdebts.util.JwtClaimMatcher;
 import io.restassured.RestAssured;
 import org.junit.Before;
 import org.junit.Test;
@@ -7,6 +8,7 @@ import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import static io.restassured.RestAssured.given;
@@ -42,4 +44,23 @@ public class UserApiTest {
             .content("password", nullValue());
 
     }
+
+    @Test
+    @Sql(statements = "insert into user (id, email, password) values (7,'user1@gmail.com', '$2a$10$77exdjQuYemJmmUyC6Aax.4RLx68rbIYGNGx1koKT0Whrnk8eXtsK')")
+    public void shouldLoginIntoSystem() {
+        given()
+            .contentType(MediaType.APPLICATION_JSON_UTF8_VALUE)
+            .accept(MediaType.APPLICATION_JSON_UTF8_VALUE)
+            .body("{\n" +
+                    "  \"email\": \"user1@gmail.com\",\n" +
+                    "  \"password\": \"password\"\n" +
+                    "}")
+        .when()
+            .post("/api/users/token")
+        .then()
+            .statusCode(200)
+            .content("token", new JwtClaimMatcher("id").equalTo(7))
+            .content("token", new JwtClaimMatcher("email").equalTo("user1@gmail.com"));
+    }
+
 }
