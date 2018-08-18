@@ -1,7 +1,6 @@
 package com.freefly19.trackdebts.user;
 
 import com.freefly19.trackdebts.AppError;
-import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;

@@ -1,10 +1,10 @@
 package com.freefly19.trackdebts.user;
 
-import com.freefly19.trackdebts.util.JwtClaimMatcher;
 import io.restassured.RestAssured;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.MediaType;
@@ -20,6 +20,9 @@ import static org.hamcrest.Matchers.*;
 public class UserApiTest {
     @LocalServerPort
     private int port;
+
+    @Value("${app.secret}")
+    private String secret;
 
     @Before
     public void beforeEach() {
@@ -60,8 +63,8 @@ public class UserApiTest {
             .post("/api/users/token")
         .then()
             .statusCode(200)
-            .content("token", hasClaim("id", equalTo(7)))
-            .content("token", hasClaim("email", equalTo("user1@gmail.com")));
+            .content("token", hasClaim("id", equalTo(7)).withKey(secret))
+            .content("token", hasClaim("email", equalTo("user1@gmail.com")).withKey(secret));
     }
 
 }

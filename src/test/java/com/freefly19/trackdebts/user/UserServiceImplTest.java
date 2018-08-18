@@ -1,5 +1,6 @@
 package com.freefly19.trackdebts.user;
 
+import com.freefly19.trackdebts.security.StatelessTokenService;
 import com.spencerwi.either.Either;
 import org.hamcrest.core.StringContains;
 import org.junit.Assert;
@@ -15,9 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
 
-import static com.freefly19.trackdebts.util.JwtClaimMatcher.hasClaim;
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -31,6 +30,8 @@ public class UserServiceImplTest {
     @Mock
     private PasswordEncoder passwordEncoder;
 
+    @Mock
+    private StatelessTokenService tokenService;
 
     @Captor
     private ArgumentCaptor<User> userCaptor;
@@ -38,7 +39,7 @@ public class UserServiceImplTest {
 
     @Before
     public void init() {
-        userService = new UserServiceImpl(userRepository, passwordEncoder);
+        userService = new UserServiceImpl(userRepository, passwordEncoder, tokenService);
     }
 
 
@@ -89,6 +90,9 @@ public class UserServiceImplTest {
 
         when(passwordEncoder.matches("rowPassword", "someHashedPass")).thenReturn(true);
 
+        when(tokenService.createToken(User.builder().id(3L).email("some@gmail.com").password("someHashedPass").build()))
+                .thenReturn("SomeTokenString");
+
         Either<String, String> token = userService.obtainToken(
                 ObtainTokenCommand
                         .builder()
@@ -97,7 +101,7 @@ public class UserServiceImplTest {
                         .build());
 
         Assert.assertTrue(token.isRight());
-        Assert.assertThat(token.getRight(), hasClaim("id", equalTo(3)));
+        Assert.assertEquals("SomeTokenString", token.getRight());
     }
 
     @Test
