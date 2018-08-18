@@ -4,12 +4,19 @@ import com.freefly19.trackdebts.security.StatelessTokenService;
 import com.spencerwi.either.Either;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Example;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
+import static java.util.Collections.emptyList;
+
 @Service
 @RequiredArgsConstructor
-public class UserServiceImpl implements UserService {
+public class UserServiceImpl implements UserService, UserDetailsService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final StatelessTokenService tokenService;
@@ -35,4 +42,15 @@ public class UserServiceImpl implements UserService {
                 .orElseGet(() -> Either.left("Bad credentials"));
     }
 
+
+    // TODO: not covered by tests
+    @Override
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        Optional<User> oUser = userRepository.findOne(Example.of(User.builder().email(email).build()));
+
+        User user = oUser
+                .orElseThrow(() -> new UsernameNotFoundException(email));
+
+        return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), emptyList());
+    }
 }
