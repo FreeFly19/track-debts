@@ -26,7 +26,8 @@ docker rm -f track-debts
 ```
 Spin up container with:
 ```
-docker run -d -p 80:8080 --name track-debts freefly19/track-debts:<tag>
+docker run -d -p 80:8080 -e "APP_SECRET=<secret>" --name track-debts freefly19/track-debts:<tag>
 ```
+_**secret** should be longer than 86 chars_
 
 **Enjoy :)**
