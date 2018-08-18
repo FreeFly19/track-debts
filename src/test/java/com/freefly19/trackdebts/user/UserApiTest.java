@@ -11,6 +11,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import static com.freefly19.trackdebts.util.JwtClaimMatcher.hasClaim;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
 
@@ -59,8 +60,8 @@ public class UserApiTest {
             .post("/api/users/token")
         .then()
             .statusCode(200)
-            .content("token", new JwtClaimMatcher("id").equalTo(7))
-            .content("token", new JwtClaimMatcher("email").equalTo("user1@gmail.com"));
+            .content("token", hasClaim("id", equalTo(7)))
+            .content("token", hasClaim("email", equalTo("user1@gmail.com")));
     }
 
 }

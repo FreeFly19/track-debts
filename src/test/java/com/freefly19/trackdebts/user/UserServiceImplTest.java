@@ -15,6 +15,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
 
+import static com.freefly19.trackdebts.util.JwtClaimMatcher.hasClaim;
+import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -78,4 +80,23 @@ public class UserServiceImplTest {
         Assert.assertTrue(StringContains.containsString("already exists").matches(registration.getLeft()));
     }
 
+    @Test
+    public void obtainUserShouldRetrieveUserFromRepositoryAndVerifyHashOfPassword() {
+        when(userRepository.findOne(Example.of(User.builder().email("some@gmail.com").build())))
+                .thenReturn(Optional.of(User.builder().id(3L).email("some@gmail.com").password("someHashedPass").build()));
+
+        when(passwordEncoder.matches("rowPassword", "someHashedPass")).thenReturn(true);
+
+
+        Either<String, String> token = userService.obtainToken(
+                ObtainTokenCommand
+                        .builder()
+                        .email("some@gmail.com")
+                        .password("rowPassword")
+                        .build());
+
+        Assert.assertTrue(token.isRight());
+        Assert.assertThat(token.getRight(), hasClaim("id", equalTo(3)));
+
+    }
 }

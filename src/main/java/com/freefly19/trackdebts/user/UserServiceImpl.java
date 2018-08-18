@@ -28,11 +28,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Either<String, String> obtainToken(ObtainTokenCommand command) {
-        String token = Jwts.builder()
-                .claim("id", 7)
-                .claim("email", command.getEmail())
-                .compact();
-
-        return Either.right(token);
+        return userRepository.findOne(Example.of(User.builder().email(command.getEmail()).build()))
+                .filter(u -> passwordEncoder.matches(command.getPassword(), u.getPassword()))
+                .map(u -> Either.<String, String>right(Jwts.builder()
+                            .claim("id", u.getId())
+                            .claim("email", u.getEmail())
+                            .compact())
+                )
+                .orElseGet(() -> Either.left("Bad credentials"));
     }
 }
