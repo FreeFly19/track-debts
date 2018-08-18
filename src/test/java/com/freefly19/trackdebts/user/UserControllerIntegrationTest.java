@@ -27,7 +27,7 @@ public class UserControllerIntegrationTest {
     private UserService userService;
 
     @Test
-    public void shouldReturnWorkFine() throws Exception {
+    public void registerShouldReturnOk() throws Exception {
         when(userService.registerUser(
                 RegisterUserCommand.builder()
                         .email("some@email.com")
@@ -55,8 +55,45 @@ public class UserControllerIntegrationTest {
                 .andExpect(jsonPath("$.email").value ("some@email.com"))
                 .andExpect(jsonPath("$.password").doesNotExist());
     }
+
     @Test
-    public void shouldReturnBadRequestWithMessageWhenErrorComeFromService() throws Exception {
+    public void obtainTokenShouldRetrieveTokenFromServiceIfCredsCorrectThenOk() throws Exception {
+        ObtainTokenCommand command = ObtainTokenCommand.builder().email("some@gmail.com").password("somepassword").build();
+        when(userService.obtainToken(command)).thenReturn(Either.right("encryptedToken"));
+
+        mockMvc
+                .perform(post("/users/token")
+                        .content("{\n" +
+                                "  \"email\":\"some@gmail.com\",\n" +
+                                "  \"password\":\"somepassword\"\n" +
+                                "}")
+                        .accept(MediaType.APPLICATION_JSON_UTF8)
+                        .contentType(MediaType.APPLICATION_JSON_UTF8)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.token").value("encryptedToken"));
+    }
+
+    @Test
+    public void obtainTokenShouldRetrieveTokenFromServiceIfCredsIncorrectThenBadRequest() throws Exception {
+        ObtainTokenCommand command = ObtainTokenCommand.builder().email("some@gmail.com").password("somepassword").build();
+        when(userService.obtainToken(command)).thenReturn(Either.left("Bad credentials"));
+
+        mockMvc
+                .perform(post("/users/token")
+                        .content("{\n" +
+                                "  \"email\":\"some@gmail.com\",\n" +
+                                "  \"password\":\"somepassword\"\n" +
+                                "}")
+                        .accept(MediaType.APPLICATION_JSON_UTF8)
+                        .contentType(MediaType.APPLICATION_JSON_UTF8)
+                )
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Bad credentials"));
+    }
+
+    @Test
+    public void registerShouldReturnBadRequestWithMessageWhenErrorComeFromService() throws Exception {
         when(userService.registerUser(any())).thenReturn(Either.left("Some Error"));
 
         mockMvc
@@ -73,7 +110,7 @@ public class UserControllerIntegrationTest {
     }
 
     @Test
-    public void shouldReturnBadRequestIfEmailNotSpecified() throws Exception {
+    public void registerShouldReturnBadRequestIfEmailNotSpecified() throws Exception {
         mockMvc
                 .perform(post("/users")
                         .content("{\"password\": \"MySuperPassword\"}")
@@ -82,7 +119,7 @@ public class UserControllerIntegrationTest {
     }
 
     @Test
-    public void shouldReturnBadRequestIfPasswordNotSpecified() throws Exception {
+    public void registerShouldReturnBadRequestIfPasswordNotSpecified() throws Exception {
         mockMvc
                 .perform(post("/users")
                         .content("{\"email\": \"my.email@test.com\"}")
@@ -91,7 +128,7 @@ public class UserControllerIntegrationTest {
     }
 
     @Test
-    public void shouldReturnBadRequestIfPasswordShortenThan8Symbols() throws Exception {
+    public void registerShouldReturnBadRequestIfPasswordShortenThan8Symbols() throws Exception {
         mockMvc
                 .perform(post("/users")
                         .content("{\n" +
@@ -102,7 +139,7 @@ public class UserControllerIntegrationTest {
                 .andExpect(status().isBadRequest());
     }
     @Test
-    public void shouldReturnBadRequestIfPasswordLongerThan255Symbols() throws Exception {
+    public void registerShouldReturnBadRequestIfPasswordLongerThan255Symbols() throws Exception {
         mockMvc
                 .perform(post("/users")
                         .content("{\n" +
@@ -114,7 +151,7 @@ public class UserControllerIntegrationTest {
     }
 
     @Test
-    public void shouldReturnBadRequestIfEmailIsInvalid() throws Exception {
+    public void registerShouldReturnBadRequestIfEmailIsInvalid() throws Exception {
         mockMvc
                 .perform(post("/users")
                         .content("{\n" +

@@ -25,11 +25,8 @@ public class UserController {
 
     @PostMapping(value = "/users/token")
     ResponseEntity<?> token(@RequestBody ObtainTokenCommand command) {
-        String token = Jwts.builder()
-                .claim("id", 7)
-                .claim("email", command.getEmail())
-                .compact();
-
-        return ResponseEntity.ok(new TokenDto(token));
+        return userService.obtainToken(command)
+                .map(AppError::new, TokenDto::new)
+                .fold(ResponseEntity.badRequest()::body, ResponseEntity::ok);
     }
 }
