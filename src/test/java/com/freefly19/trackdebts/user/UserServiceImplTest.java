@@ -16,7 +16,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import java.util.Optional;
 
 import static com.freefly19.trackdebts.util.JwtClaimMatcher.hasClaim;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -81,12 +83,11 @@ public class UserServiceImplTest {
     }
 
     @Test
-    public void obtainUserShouldRetrieveUserFromRepositoryAndVerifyHashOfPassword() {
+    public void obtainTokenShouldRetrieveUserFromRepositoryAndVerifyHashOfPassword() {
         when(userRepository.findOne(Example.of(User.builder().email("some@gmail.com").build())))
                 .thenReturn(Optional.of(User.builder().id(3L).email("some@gmail.com").password("someHashedPass").build()));
 
         when(passwordEncoder.matches("rowPassword", "someHashedPass")).thenReturn(true);
-
 
         Either<String, String> token = userService.obtainToken(
                 ObtainTokenCommand
@@ -97,6 +98,41 @@ public class UserServiceImplTest {
 
         Assert.assertTrue(token.isRight());
         Assert.assertThat(token.getRight(), hasClaim("id", equalTo(3)));
+    }
 
+    @Test
+    public void obtainTokenShouldReturnBadRequestIfUserNotFound() {
+        when(userRepository.findOne(Example.of(User.builder().email("some@gmail.com").build())))
+                .thenReturn(Optional.empty());
+
+        Either<String, String> token = userService.obtainToken(
+                ObtainTokenCommand
+                        .builder()
+                        .email("some@gmail.com")
+                        .password("rowPassword")
+                        .build());
+
+        Assert.assertTrue(token.isLeft());
+        Assert.assertThat(token.getLeft(), containsString("Bad credentials"));
+    }
+
+    @Test
+    public void obtainTokenShouldReturnBadRequestIfPasswordDoesNotMatch() {
+        when(userRepository.findOne(Example.of(User.builder().email("some@gmail.com").build())))
+                .thenReturn(Optional.of(User.builder().id(3L).email("some@gmail.com").password("someHashedPass").build()));
+
+        when(passwordEncoder.matches("rowPassword", "someHashedPass")).thenReturn(false);
+
+        Either<String, String> token = userService.obtainToken(
+                ObtainTokenCommand
+                        .builder()
+                        .email("some@gmail.com")
+                        .password("rowPassword")
+                        .build());
+
+        Assert.assertTrue(token.isLeft());
+        Assert.assertThat(token.getLeft(), containsString("Bad credentials"));
+
+        verify(passwordEncoder).matches("rowPassword", "someHashedPass");
     }
 }
