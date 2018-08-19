@@ -4,4 +4,5 @@ import com.freefly19.trackdebts.user.User;
 
 public interface StatelessTokenService {
     String createToken(User user);
+    TokenClaim parseUserData(String token);
 }
