@@ -9,7 +9,7 @@ import javax.validation.constraints.NotBlank;
 
 @Builder
 @Data
-class RegisterUserCommand {
+public class RegisterUserCommand {
     @NotBlank
     @Email
     private String email;

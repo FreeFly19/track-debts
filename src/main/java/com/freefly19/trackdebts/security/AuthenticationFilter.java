@@ -2,7 +2,9 @@ package com.freefly19.trackdebts.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.freefly19.trackdebts.AppError;
+import com.freefly19.trackdebts.util.DateTimeProvider;
 import io.jsonwebtoken.security.SignatureException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -13,18 +15,19 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Collections;
+import java.util.UUID;
 
+@RequiredArgsConstructor
 public class AuthenticationFilter extends OncePerRequestFilter {
-    private final StatelessTokenService tokenService;
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    public static final String AUTHORIZATION_HEADER = "Authorization";
 
-    public AuthenticationFilter(StatelessTokenService tokenService) {
-        this.tokenService = tokenService;
-    }
+    private final StatelessTokenService tokenService;
+    private final DateTimeProvider dateTimeProvider;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String authorization = request.getHeader("Authorization");
+        String authorization = request.getHeader(AUTHORIZATION_HEADER);
 
 
         String prefix = "Bearer ";
@@ -45,7 +48,14 @@ public class AuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(tokenClaim.getEmail(), null, Collections.emptySet());
+        UserRequestContext context = UserRequestContext.builder()
+                .id(tokenClaim.getId())
+                .email(tokenClaim.getEmail())
+                .date(dateTimeProvider.now())
+                .requestId(UUID.randomUUID().toString())
+                .build();
+
+        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(context, null, Collections.emptySet());
         SecurityContextHolder.getContext().setAuthentication(authentication);
         filterChain.doFilter(request, response);
     }

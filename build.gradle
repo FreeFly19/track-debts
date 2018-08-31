@@ -29,7 +29,7 @@ dependencies {
     compile('org.springframework.boot:spring-boot-starter-validation')
     compile('org.springframework.boot:spring-boot-starter-security')
     compile('org.springframework.boot:spring-boot-starter-web')
-    compile('org.flywaydb:flyway-core')
+//    compile('org.flywaydb:flyway-core')
     compile('com.spencerwi:Either.java:2.0.0')
     compile('io.springfox:springfox-swagger2:2.9.2')
     compile('io.springfox:springfox-swagger-ui:2.9.2')

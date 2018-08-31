@@ -1,5 +1,6 @@
 package com.freefly19.trackdebts.security;
 
+import com.freefly19.trackdebts.util.DateTimeProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -16,6 +17,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     private final StatelessTokenService tokenService;
+    private final DateTimeProvider dateTimeProvider;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -28,7 +30,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.POST, "/users", "/users/token").permitAll()
                 .anyRequest().authenticated()
                 .and()
-                .addFilterBefore(new AuthenticationFilter(tokenService), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new AuthenticationFilter(tokenService, dateTimeProvider), UsernamePasswordAuthenticationFilter.class)
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
     }
 }
