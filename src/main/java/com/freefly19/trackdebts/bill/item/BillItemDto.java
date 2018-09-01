@@ -10,12 +10,14 @@ public class BillItemDto {
     private final Long id;
     private final String title;
     private final BigDecimal price;
+    private final BigDecimal amount;
     private final Timestamp createdAt;
 
     public BillItemDto(BillItem billItem) {
         this.id = billItem.getId();
         this.title = billItem.getTitle();
         this.createdAt = billItem.getCreatedAt();
-        this.price = billItem.getPrice();
+        this.price = billItem.getCost();
+        this.amount = billItem.getAmount();
     }
 }

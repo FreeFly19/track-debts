@@ -1,6 +1,7 @@
 package com.freefly19.trackdebts.bill.item;
 
 import com.freefly19.trackdebts.bill.Bill;
+import com.freefly19.trackdebts.bill.item.eaten.ItemEatenAmount;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -8,6 +9,7 @@ import lombok.Setter;
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.util.Set;
 
 @Builder
 @Getter @Setter
@@ -21,11 +23,17 @@ public class BillItem {
     private String title;
 
     @Column(nullable = false)
-    private BigDecimal price;
+    private BigDecimal cost;
+
+    @Column(nullable = false)
+    private BigDecimal amount;
 
     @Column(nullable = false)
     private Timestamp createdAt;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     private Bill bill;
+
+    @OneToMany(mappedBy = "item")
+    private Set<ItemEatenAmount> eatenAmounts;
 }
