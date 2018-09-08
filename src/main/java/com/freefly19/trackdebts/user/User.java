@@ -7,8 +7,10 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
-@Data
+@Getter @Setter
 @Entity
 public class User {
     @Id

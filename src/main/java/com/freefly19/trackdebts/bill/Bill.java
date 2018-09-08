@@ -3,14 +3,14 @@ package com.freefly19.trackdebts.bill;
 import com.freefly19.trackdebts.bill.item.BillItem;
 import com.freefly19.trackdebts.bill.lock.BillLock;
 import com.freefly19.trackdebts.user.User;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
 import java.util.Set;
 
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
 @Getter @Setter
 @Entity

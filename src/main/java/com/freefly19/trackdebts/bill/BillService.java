@@ -49,7 +49,7 @@ public class BillService {
                             .createdAt(context.timestamp())
                             .build();
                     bill.setBillLock(billLockRepository.save(lock));
-                    eventPublisher.publishEvent(new BillLockedEvent(billId, context.getId()));
+                    eventPublisher.publishEvent(new BillLockedEvent(billId, context));
 
                     return Either.<String, BillDto>right(new BillDto(bill));
                 })

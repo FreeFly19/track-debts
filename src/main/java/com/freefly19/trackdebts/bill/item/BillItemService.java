@@ -20,7 +20,7 @@ public class BillItemService {
                     BillItem billItem = BillItem.builder()
                             .bill(bill)
                             .title(command.getTitle())
-                            .price(command.getPrice())
+                            .cost(command.getPrice())
                             .build();
 
                     BillItemDto billItemDto = new BillItemDto(billItemRepository.save(billItem));
