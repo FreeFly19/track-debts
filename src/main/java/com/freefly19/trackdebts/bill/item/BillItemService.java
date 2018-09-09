@@ -1,17 +1,21 @@
 package com.freefly19.trackdebts.bill.item;
 
 import com.freefly19.trackdebts.bill.BillRepository;
+import com.freefly19.trackdebts.util.DateTimeProvider;
 import com.spencerwi.either.Either;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.Timestamp;
+
 @RequiredArgsConstructor
 @Service
 public class BillItemService {
     private final BillItemRepository billItemRepository;
     private final BillRepository billRepository;
+    private final DateTimeProvider dateTimeProvider;
 
     @Transactional
     public Either<String, BillItemDto> save(Long billId, CreateUpdateBillItemCommand command) {
@@ -20,7 +24,9 @@ public class BillItemService {
                     BillItem billItem = BillItem.builder()
                             .bill(bill)
                             .title(command.getTitle())
-                            .cost(command.getPrice())
+                            .cost(command.getCost())
+                            .amount(command.getAmount())
+                            .createdAt(new Timestamp(dateTimeProvider.now()))
                             .build();
 
                     BillItemDto billItemDto = new BillItemDto(billItemRepository.save(billItem));

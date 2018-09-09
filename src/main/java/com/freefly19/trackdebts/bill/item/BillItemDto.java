@@ -9,7 +9,7 @@ import java.sql.Timestamp;
 public class BillItemDto {
     private final Long id;
     private final String title;
-    private final BigDecimal price;
+    private final BigDecimal cost;
     private final BigDecimal amount;
     private final Timestamp createdAt;
 
@@ -17,7 +17,7 @@ public class BillItemDto {
         this.id = billItem.getId();
         this.title = billItem.getTitle();
         this.createdAt = billItem.getCreatedAt();
-        this.price = billItem.getCost();
+        this.cost = billItem.getCost();
         this.amount = billItem.getAmount();
     }
 }

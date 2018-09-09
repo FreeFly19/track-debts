@@ -3,7 +3,6 @@ package com.freefly19.trackdebts.bill;
 import com.freefly19.trackdebts.AppError;
 import com.freefly19.trackdebts.security.UserRequestContext;
 import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.Authorization;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -28,6 +27,15 @@ public class BillController {
         return billService.save(command, context);
     }
 
+    @ApiOperation(value = "Lock Bill", response = BillDto.class)
+    @GetMapping("/bills/{id}")
+    public ResponseEntity<?> createBill(@PathVariable long id, @ApiIgnore UserRequestContext context) {
+        return billService.get(id, context)
+                .map(AppError::new, Function.identity())
+                .fold(ResponseEntity.badRequest()::body, ResponseEntity::ok);
+    }
+
+    @ApiOperation(value = "Lock Bill", response = BillDto.class)
     @PutMapping("/bills/{billId}/lock")
     public ResponseEntity<?> lockBill(@PathVariable long billId, @ApiIgnore UserRequestContext context) {
         return billService.lock(billId, context)

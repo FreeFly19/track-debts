@@ -57,4 +57,10 @@ public class BillService {
                 })
                 .orElseGet(() -> Either.left("Bill with " + billId +" id not found"));
     }
+
+    public Either<String, BillDto> get(long id, UserRequestContext context) {
+        return billRepository.findById(id)
+                .map(bill -> Either.<String, BillDto>right(new BillDto(bill)))
+                .orElseGet(() -> Either.left("Bill with " + id +" id not found"));
+    }
 }

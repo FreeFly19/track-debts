@@ -13,5 +13,8 @@ public class CreateUpdateBillItemCommand {
     private String title;
 
     @NotNull
-    private BigDecimal price;
+    private BigDecimal cost;
+
+    @NotNull
+    private BigDecimal amount;
 }
