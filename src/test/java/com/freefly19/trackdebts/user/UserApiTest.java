@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -17,6 +18,7 @@ import static org.hamcrest.Matchers.*;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@TestPropertySource(locations="classpath:test.properties")
 public class UserApiTest {
     @LocalServerPort
     private int port;
@@ -50,7 +52,7 @@ public class UserApiTest {
     }
 
     @Test
-    @Sql(statements = "insert into user (id, email, password) values (7,'user1@gmail.com', '$2a$10$77exdjQuYemJmmUyC6Aax.4RLx68rbIYGNGx1koKT0Whrnk8eXtsK')")
+    @Sql(statements = "insert into users (id, email, password) values (7,'user1@gmail.com', '$2a$10$77exdjQuYemJmmUyC6Aax.4RLx68rbIYGNGx1koKT0Whrnk8eXtsK')")
     public void shouldLoginIntoSystem() {
         given()
             .contentType(MediaType.APPLICATION_JSON_UTF8_VALUE)
