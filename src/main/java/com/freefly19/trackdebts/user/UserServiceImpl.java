@@ -9,6 +9,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -21,6 +22,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     private final PasswordEncoder passwordEncoder;
     private final StatelessTokenService tokenService;
 
+    @Transactional
     @Override
     public Either<String, User> registerUser(RegisterUserCommand command) {
         return userRepository.findOne(Example.of(User.builder().email(command.getEmail()).build()))
@@ -34,6 +36,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                                                 .build())));
     }
 
+    @Transactional(readOnly = true)
     @Override
     public Either<String, String> obtainToken(ObtainTokenCommand command) {
         return userRepository.findOne(Example.of(User.builder().email(command.getEmail()).build()))
@@ -43,7 +46,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
 
-    // TODO: not covered by tests
+    @Transactional(readOnly = true)
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         Optional<User> oUser = userRepository.findOne(Example.of(User.builder().email(email).build()));
