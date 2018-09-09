@@ -1,10 +1,9 @@
 package com.freefly19.trackdebts.user;
 
-import lombok.Value;
+import lombok.Getter;
 
-@Value
-public
-class UserDto {
+@Getter
+public class UserDto {
     private final long id;
     private final String email;
 

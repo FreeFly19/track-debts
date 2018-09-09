@@ -1,4 +1,4 @@
-package com.freefly19.trackdebts.bill.item.eaten;
+package com.freefly19.trackdebts.bill.item.participant;
 
 import com.freefly19.trackdebts.bill.item.BillItem;
 import com.freefly19.trackdebts.user.User;
@@ -13,7 +13,7 @@ import java.sql.Timestamp;
 @Builder
 @Getter @Setter
 @Entity
-public class ItemEatenAmount {
+public class ItemParticipant {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -25,7 +25,7 @@ public class ItemEatenAmount {
     private User user;
 
     @Column(nullable = false)
-    private BigDecimal value;
+    private BigDecimal coefficient;
 
     @Column(nullable = false)
     private Timestamp createdAt;

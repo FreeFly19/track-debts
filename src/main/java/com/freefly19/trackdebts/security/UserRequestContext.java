@@ -4,7 +4,6 @@ import com.freefly19.trackdebts.user.User;
 import com.freefly19.trackdebts.user.UserRepository;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 
 import java.sql.Timestamp;
 

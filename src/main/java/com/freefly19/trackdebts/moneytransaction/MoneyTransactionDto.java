@@ -1,9 +1,11 @@
 package com.freefly19.trackdebts.moneytransaction;
 
+import com.freefly19.trackdebts.bill.BillDto;
 import com.freefly19.trackdebts.user.UserDto;
 import lombok.Getter;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 
 @Getter
 public class MoneyTransactionDto {
@@ -12,6 +14,7 @@ public class MoneyTransactionDto {
     private final UserDto receiver;
     private final BigDecimal amount;
     private final long createdAt;
+    private final BillDto bill;
 
     public MoneyTransactionDto(MoneyTransaction moneyTransaction) {
         this.id = moneyTransaction.getId();
@@ -19,5 +22,6 @@ public class MoneyTransactionDto {
         this.receiver = new UserDto(moneyTransaction.getReceiver());
         this.amount = moneyTransaction.getAmount();
         this.createdAt = moneyTransaction.getCreatedAt().getTime();
+        this.bill = Objects.nonNull(moneyTransaction.getBill()) ? new BillDto(moneyTransaction.getBill()) : null;
     }
 }

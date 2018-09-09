@@ -15,6 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Objects;
+import java.util.Optional;
 
 @Service
 @AllArgsConstructor
@@ -44,18 +46,30 @@ public class BillService {
 
     @Transactional
     public Either<String, BillDto> lock(long billId, UserRequestContext context) {
-        return billRepository.findById(billId)
-                .map(bill -> {
-                    BillLock lock = BillLock.builder()
-                            .bill(bill)
-                            .createdAt(context.timestamp())
-                            .build();
-                    bill.setBillLock(billLockRepository.save(lock));
-                    eventPublisher.publishEvent(new BillLockedEvent(billId, context));
+        Optional<Bill> oBill = billRepository.findById(billId);
 
-                    return Either.<String, BillDto>right(new BillDto(bill));
-                })
-                .orElseGet(() -> Either.left("Bill with " + billId +" id not found"));
+        if(!oBill.isPresent()) {
+            return Either.left("Bill with " + billId +" id not found");
+        }
+
+        Bill bill = oBill.get();
+
+        if(!bill.getCreatedBy().getId().equals(context.getId())) {
+            return Either.left("You can lock only yours bills");
+        }
+
+        if (Objects.nonNull(bill.getBillLock()) && Objects.nonNull(bill.getBillLock().getId())) {
+            return Either.<String, BillDto>right(new BillDto(bill));
+        }
+
+        BillLock lock = BillLock.builder()
+                .bill(bill)
+                .createdAt(context.timestamp())
+                .build();
+        bill.setBillLock(billLockRepository.save(lock));
+        eventPublisher.publishEvent(new BillLockedEvent(billId, context));
+
+        return Either.<String, BillDto>right(new BillDto(bill));
     }
 
     public Either<String, BillDto> get(long id, UserRequestContext context) {

@@ -1,4 +1,4 @@
-package com.freefly19.trackdebts.bill.item.eaten;
+package com.freefly19.trackdebts.bill.item.participant;
 
 import com.freefly19.trackdebts.security.UserRequestContext;
 import lombok.RequiredArgsConstructor;
@@ -10,16 +10,16 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RequiredArgsConstructor
 @RestController
-public class ItemEatenAmountController {
-    private final ItemEatenAmountService itemEatenAmountService;
+public class ItemParticipantController {
+    private final ItemParticipantService itemParticipantService;
 
-    @PutMapping("/bills/{billId}/items/{itemId}/eaten-amount")
+    @PutMapping("/bills/{billId}/items/{itemId}/participate")
     public ResponseEntity<?> eatenAmount(@PathVariable long billId,
                                          @PathVariable long itemId,
-                                         @RequestBody ItemEatenAmountCommand command,
+                                         @RequestBody ItemParticipantCommand command,
                                          UserRequestContext context) {
 
-        return itemEatenAmountService.specifyEatenAmount(itemId, command, context)
+        return itemParticipantService.specifyCoefficient(itemId, command, context)
                 .map(ResponseEntity.badRequest()::body)
                 .orElseGet(ResponseEntity.ok()::build);
     }

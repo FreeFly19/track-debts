@@ -27,7 +27,7 @@ public class BillController {
         return billService.save(command, context);
     }
 
-    @ApiOperation(value = "Lock Bill", response = BillDto.class)
+    @ApiOperation(value = "Create Bill", response = BillDto.class)
     @GetMapping("/bills/{id}")
     public ResponseEntity<?> createBill(@PathVariable long id, @ApiIgnore UserRequestContext context) {
         return billService.get(id, context)

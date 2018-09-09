@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
+import java.util.HashSet;
 
 @RequiredArgsConstructor
 @Service
@@ -27,6 +28,7 @@ public class BillItemService {
                             .cost(command.getCost())
                             .amount(command.getAmount())
                             .createdAt(new Timestamp(dateTimeProvider.now()))
+                            .participants(new HashSet<>())
                             .build();
 
                     BillItemDto billItemDto = new BillItemDto(billItemRepository.save(billItem));

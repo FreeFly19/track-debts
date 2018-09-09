@@ -1,5 +1,6 @@
 package com.freefly19.trackdebts.moneytransaction;
 
+import com.freefly19.trackdebts.bill.Bill;
 import com.freefly19.trackdebts.user.User;
 import lombok.*;
 
@@ -22,6 +23,9 @@ public class MoneyTransaction {
 
     @ManyToOne(optional = false)
     private User receiver;
+
+    @ManyToOne
+    private Bill bill;
 
     @Column(nullable = false)
     private BigDecimal amount;

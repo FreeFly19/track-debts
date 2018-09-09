@@ -1,7 +1,7 @@
 package com.freefly19.trackdebts.bill.item;
 
 import com.freefly19.trackdebts.bill.Bill;
-import com.freefly19.trackdebts.bill.item.eaten.ItemEatenAmount;
+import com.freefly19.trackdebts.bill.item.participant.ItemParticipant;
 import lombok.*;
 
 import javax.persistence.*;
@@ -35,5 +35,5 @@ public class BillItem {
     private Bill bill;
 
     @OneToMany(mappedBy = "item")
-    private Set<ItemEatenAmount> eatenAmounts;
+    private Set<ItemParticipant> participants;
 }
