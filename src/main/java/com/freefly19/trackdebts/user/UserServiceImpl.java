@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
 import java.util.Optional;
 
 import static java.util.Collections.emptyList;
@@ -22,10 +23,12 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final StatelessTokenService tokenService;
+    private final EntityManager entityManager;
 
-    @Transactional(isolation = Isolation.SERIALIZABLE)
+    @Transactional
     @Override
     public Either<String, User> registerUser(RegisterUserCommand command) {
+        entityManager.createNativeQuery("LOCK TABLE users IN EXCLUSIVE MODE").executeUpdate();
         return userRepository.findOne(Example.of(User.builder().email(command.getEmail()).build()))
                 .map(u -> Either.<String, User>left("User with " + command.getEmail() + " email already exists"))
                 .orElseGet(() ->

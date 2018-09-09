@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 
 @Service
 @AllArgsConstructor
@@ -35,6 +36,7 @@ public class BillService {
                 .date(new Timestamp(command.getDate()))
                 .createdBy(context.toUser(userRepository))
                 .createdAt(context.timestamp())
+                .items(new ArrayList<>())
                 .build();
 
         return new BillDto(billRepository.save(bill));

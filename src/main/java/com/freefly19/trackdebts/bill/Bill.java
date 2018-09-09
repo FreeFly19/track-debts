@@ -7,6 +7,8 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 @NoArgsConstructor
@@ -35,5 +37,6 @@ public class Bill {
     private BillLock billLock;
 
     @OneToMany(mappedBy = "bill")
-    private Set<BillItem> items;
+    @OrderBy("id")
+    private List<BillItem> items = new ArrayList<>();
 }

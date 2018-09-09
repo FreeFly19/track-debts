@@ -10,10 +10,13 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.data.domain.Example;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import javax.persistence.EntityManager;
+import javax.persistence.Query;
 import java.util.Optional;
 
 import static org.hamcrest.Matchers.containsString;
@@ -33,13 +36,16 @@ public class UserServiceImplTest {
     @Mock
     private StatelessTokenService tokenService;
 
+    @Mock
+    private EntityManager entityManager;
+
     @Captor
     private ArgumentCaptor<User> userCaptor;
 
 
     @Before
     public void init() {
-        userService = new UserServiceImpl(userRepository, passwordEncoder, tokenService);
+        userService = new UserServiceImpl(userRepository, passwordEncoder, tokenService, entityManager);
     }
 
 
@@ -47,6 +53,8 @@ public class UserServiceImplTest {
     public void registerNewUserShouldPassSuccessfully() {
         when(userRepository.findOne(Example.of(User.builder().email("some@email.com").build())))
                 .thenReturn(Optional.empty());
+
+        when(entityManager.createNativeQuery(Mockito.any())).thenReturn(Mockito.mock(Query.class));
 
         when(userRepository.save(userCaptor.capture()))
                 .then(ignore -> {
@@ -71,6 +79,8 @@ public class UserServiceImplTest {
     public void registerNewUserShouldReturnLeftWithUserAlreadyExists() {
         when(userRepository.findOne(Example.of(User.builder().email("some@email.com").build())))
                 .thenReturn(Optional.of(User.builder().id(13L).email("some@email.com").password("hashed").build()));
+
+        when(entityManager.createNativeQuery(Mockito.any())).thenReturn(Mockito.mock(Query.class));
 
         Either<String, User> registration =
                 userService.registerUser(
