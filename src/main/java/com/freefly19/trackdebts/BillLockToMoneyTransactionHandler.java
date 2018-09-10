@@ -49,8 +49,8 @@ public class BillLockToMoneyTransactionHandler {
         userIdAmountMap.forEach((userId, amount) -> {
             moneyTransactionRepository.save(
                     MoneyTransaction.builder()
-                            .sender(userRepository.getOne(userId))
-                            .receiver(bill.getCreatedBy())
+                            .sender(bill.getCreatedBy())
+                            .receiver(userRepository.getOne(userId))
                             .amount(amount)
                             .createdAt(event.getContext().timestamp())
                             .bill(bill)
