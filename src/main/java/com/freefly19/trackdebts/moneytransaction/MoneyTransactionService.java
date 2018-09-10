@@ -42,6 +42,10 @@ public class MoneyTransactionService {
             return Optional.of("Amount should be an positive number");
         }
 
+        if (context.getId() == command.getSenderId()) {
+            return Optional.of("Current user cannot be sender");
+        }
+
         Optional<User> oSender = userRepository.findById(command.getSenderId());
         if (!oSender.isPresent()) {
             return Optional.of("Sender not found");
