@@ -1,5 +1,6 @@
 package com.freefly19.trackdebts.moneytransaction;
 
+import com.freefly19.trackdebts.AppError;
 import com.freefly19.trackdebts.security.UserRequestContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -25,6 +26,7 @@ public class MoneyTransactionController {
     @PostMapping("/transactions")
     private ResponseEntity<?> receiveMoney(@RequestBody @Valid ReceiveMoneyCommand command, UserRequestContext context) {
         return service.receiveMoney(command, context)
+                .map(AppError::new)
                 .map(ResponseEntity.badRequest()::body)
                 .orElseGet(ResponseEntity.ok()::build);
     }
