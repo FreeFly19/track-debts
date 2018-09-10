@@ -9,11 +9,12 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyList;
 
@@ -47,6 +48,13 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                 .filter(u -> passwordEncoder.matches(command.getPassword(), u.getPassword()))
                 .map(u -> Either.<String, String>right(tokenService.createToken(u)))
                 .orElseGet(() -> Either.left("Bad credentials"));
+    }
+
+    @Override
+    public List<UserDto> findAll() {
+        return userRepository.findAll()
+                .stream().map(UserDto::new)
+                .collect(Collectors.toList());
     }
 
 
