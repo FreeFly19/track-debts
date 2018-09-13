@@ -1,6 +1,7 @@
 package com.freefly19.trackdebts.user;
 
 import com.freefly19.trackdebts.AppError;
+import com.freefly19.trackdebts.security.UserRequestContext;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -38,5 +39,10 @@ public class UserController {
     @GetMapping(value = "/users")
     List<UserDto> allUsers() {
         return userService.findAll();
+    }
+
+    @GetMapping(value = "/users/current/balance")
+    List<UserBalanceDto> balance(UserRequestContext context) {
+        return userService.getBalance(context);
     }
 }

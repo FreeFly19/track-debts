@@ -1,9 +1,13 @@
 package com.freefly19.trackdebts.user;
 
+import com.freefly19.trackdebts.moneytransaction.MoneyTransaction;
+import com.freefly19.trackdebts.moneytransaction.MoneyTransactionRepository;
 import com.freefly19.trackdebts.security.StatelessTokenService;
+import com.freefly19.trackdebts.security.UserRequestContext;
 import com.spencerwi.either.Either;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Example;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -12,8 +16,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
-import java.util.List;
-import java.util.Optional;
+import java.math.BigDecimal;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyList;
@@ -25,6 +29,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     private final PasswordEncoder passwordEncoder;
     private final StatelessTokenService tokenService;
     private final EntityManager entityManager;
+    private final MoneyTransactionRepository moneyTransactionRepository;
 
     @Transactional
     @Override
@@ -54,6 +59,33 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     public List<UserDto> findAll() {
         return userRepository.findAll()
                 .stream().map(UserDto::new)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<UserBalanceDto> getBalance(UserRequestContext context) {
+        Specification<MoneyTransaction> spec = Specification.where((r, q, cb) ->
+                cb.or(
+                        cb.equal(r.get("receiver").get("id"), context.getId()),
+                        cb.equal(r.get("sender").get("id"), context.getId())
+                )
+        );
+
+        Map<Long, BigDecimal> userBalanceMap = new HashMap<>();
+
+        for (MoneyTransaction mt : moneyTransactionRepository.findAll(spec)) {
+            if (mt.getReceiver().getId().equals(context.getId())) {
+                userBalanceMap.put(mt.getSender().getId(), userBalanceMap.getOrDefault(mt.getSender().getId(), BigDecimal.ZERO).subtract(mt.getAmount()));
+            } else {
+                userBalanceMap.put(mt.getReceiver().getId(), userBalanceMap.getOrDefault(mt.getSender().getId(), BigDecimal.ZERO).add(mt.getAmount()));
+            }
+        }
+
+        return userBalanceMap.keySet()
+                .stream()
+                .filter(key -> !userBalanceMap.get(key).equals(BigDecimal.ZERO))
+                .map(key -> new UserBalanceDto(userRepository.getOne(key), userBalanceMap.get(key)))
+                .sorted((o1, o2) -> o1.getBalance().plus().subtract(o2.getBalance().plus()).intValue())
                 .collect(Collectors.toList());
     }
 
