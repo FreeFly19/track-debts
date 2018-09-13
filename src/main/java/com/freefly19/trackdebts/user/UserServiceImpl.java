@@ -29,7 +29,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     private final PasswordEncoder passwordEncoder;
     private final StatelessTokenService tokenService;
     private final EntityManager entityManager;
-    private final MoneyTransactionRepository moneyTransactionRepository;
 
     @Transactional
     @Override
@@ -61,34 +60,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                 .stream().map(UserDto::new)
                 .collect(Collectors.toList());
     }
-
-    @Override
-    public List<UserBalanceDto> getBalance(UserRequestContext context) {
-        Specification<MoneyTransaction> spec = Specification.where((r, q, cb) ->
-                cb.or(
-                        cb.equal(r.get("receiver").get("id"), context.getId()),
-                        cb.equal(r.get("sender").get("id"), context.getId())
-                )
-        );
-
-        Map<Long, BigDecimal> userBalanceMap = new HashMap<>();
-
-        for (MoneyTransaction mt : moneyTransactionRepository.findAll(spec)) {
-            if (mt.getReceiver().getId().equals(context.getId())) {
-                userBalanceMap.put(mt.getSender().getId(), userBalanceMap.getOrDefault(mt.getSender().getId(), BigDecimal.ZERO).subtract(mt.getAmount()));
-            } else {
-                userBalanceMap.put(mt.getReceiver().getId(), userBalanceMap.getOrDefault(mt.getSender().getId(), BigDecimal.ZERO).add(mt.getAmount()));
-            }
-        }
-
-        return userBalanceMap.keySet()
-                .stream()
-                .filter(key -> !userBalanceMap.get(key).equals(BigDecimal.ZERO))
-                .map(key -> new UserBalanceDto(userRepository.getOne(key), userBalanceMap.get(key)))
-                .sorted((o1, o2) -> o1.getBalance().plus().subtract(o2.getBalance().plus()).intValue())
-                .collect(Collectors.toList());
-    }
-
 
     @Transactional(readOnly = true)
     @Override
