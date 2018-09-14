@@ -82,7 +82,7 @@ public class MoneyTransactionService {
             if (mt.getReceiver().getId().equals(context.getId())) {
                 userBalanceMap.put(mt.getSender().getId(), userBalanceMap.getOrDefault(mt.getSender().getId(), BigDecimal.ZERO).subtract(mt.getAmount()));
             } else {
-                userBalanceMap.put(mt.getReceiver().getId(), userBalanceMap.getOrDefault(mt.getSender().getId(), BigDecimal.ZERO).add(mt.getAmount()));
+                userBalanceMap.put(mt.getReceiver().getId(), userBalanceMap.getOrDefault(mt.getReceiver().getId(), BigDecimal.ZERO).add(mt.getAmount()));
             }
         }
 

@@ -1,5 +1,6 @@
 package com.freefly19.trackdebts.user;
 
+import com.freefly19.trackdebts.moneytransaction.MoneyTransactionService;
 import com.spencerwi.either.Either;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Test;
@@ -25,6 +26,9 @@ public class UserControllerIntegrationTest {
 
     @MockBean
     private UserService userService;
+
+    @MockBean
+    private MoneyTransactionService moneyTransactionService;
 
     @Test
     public void registerShouldReturnOk() throws Exception {
