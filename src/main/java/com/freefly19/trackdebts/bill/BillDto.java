@@ -13,6 +13,7 @@ public class BillDto {
     private final String title;
     private final long date;
     private final long createdAt;
+    private final boolean locked;
     private final UserDto createdBy;
     private final List<BillItemDto> items;
 
@@ -21,6 +22,7 @@ public class BillDto {
         this.title = bill.getTitle();
         this.date = bill.getDate().getTime();
         this.createdAt = bill.getCreatedAt().getTime();
+        this.locked = bill.getBillLock() != null && bill.getBillLock().getId() != null;
         this.createdBy = new UserDto(bill.getCreatedBy());
         this.items = bill.getItems().stream().map(BillItemDto::new).collect(Collectors.toList());
     }
