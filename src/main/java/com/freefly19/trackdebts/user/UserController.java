@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.function.Function;
 
 @RestController
 @RequiredArgsConstructor
@@ -33,7 +34,7 @@ public class UserController {
     @PostMapping(value = "/users/token")
     ResponseEntity<?> token(@RequestBody ObtainTokenCommand command) {
         return userService.obtainToken(command)
-                .map(AppError::new, TokenDto::new)
+                .map(AppError::new, Function.identity())
                 .fold(ResponseEntity.badRequest()::body, ResponseEntity::ok);
     }
 

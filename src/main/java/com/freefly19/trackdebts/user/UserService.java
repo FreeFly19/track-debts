@@ -6,6 +6,6 @@ import java.util.List;
 
 public interface UserService {
     Either<String, User> registerUser(RegisterUserCommand command);
-    Either<String, String> obtainToken(ObtainTokenCommand command);
+    Either<String, TokenDto> obtainToken(ObtainTokenCommand command);
     List<UserDto> findAll();
 }

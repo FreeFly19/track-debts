@@ -47,10 +47,10 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Transactional(readOnly = true)
     @Override
-    public Either<String, String> obtainToken(ObtainTokenCommand command) {
+    public Either<String, TokenDto> obtainToken(ObtainTokenCommand command) {
         return userRepository.findOne(Example.of(User.builder().email(command.getEmail()).build()))
                 .filter(u -> passwordEncoder.matches(command.getPassword(), u.getPassword()))
-                .map(u -> Either.<String, String>right(tokenService.createToken(u)))
+                .map(u -> Either.<String, TokenDto>right(new TokenDto(u.getId(), u.getEmail(), tokenService.createToken(u))))
                 .orElseGet(() -> Either.left("Bad credentials"));
     }
 
