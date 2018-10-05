@@ -14,10 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -90,7 +87,7 @@ public class MoneyTransactionService {
                 .stream()
                 .filter(key -> !userBalanceMap.get(key).equals(BigDecimal.ZERO))
                 .map(key -> new UserBalanceDto(userRepository.getOne(key), userBalanceMap.get(key)))
-                .sorted((o1, o2) -> o1.getBalance().plus().subtract(o2.getBalance().plus()).intValue())
+                .sorted(Comparator.comparing((UserBalanceDto o) -> o.getBalance().abs()).reversed())
                 .collect(Collectors.toList());
     }
 }
