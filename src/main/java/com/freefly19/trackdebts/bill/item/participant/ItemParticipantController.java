@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
+
 @RequiredArgsConstructor
 @RestController
 public class ItemParticipantController {
@@ -16,7 +18,7 @@ public class ItemParticipantController {
     @PutMapping("/bills/{billId}/items/{itemId}/participate")
     public ResponseEntity<?> eatenAmount(@PathVariable long billId,
                                          @PathVariable long itemId,
-                                         @RequestBody ItemParticipantCommand command,
+                                         @Valid @RequestBody ItemParticipantCommand command,
                                          UserRequestContext context) {
 
         return itemParticipantService.specifyCoefficient(itemId, command, context)

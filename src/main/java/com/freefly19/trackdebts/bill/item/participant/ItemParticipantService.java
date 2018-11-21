@@ -21,21 +21,31 @@ public class ItemParticipantService {
 
     @Transactional
     public Optional<String> specifyCoefficient(long itemId, ItemParticipantCommand command, UserRequestContext context) {
-        Optional<BillItem> billItem = billItemRepository.findById(itemId);
-        if(!billItem.isPresent()) {
+        Optional<BillItem> oItem = billItemRepository.findById(itemId);
+        if(!oItem.isPresent()) {
             return Optional.of("Item with " + itemId + " id not found");
+        }
+
+        BillItem item = oItem.get();
+
+        if (item.getBill().getBillLock() != null && item.getBill().getBillLock().getId() != null) {
+            return Optional.of("You cannot change coefficient for items in locked bills");
         }
 
         ItemParticipant participant = itemParticipantRepository.findByUserIdAndItemId(context.getId(), itemId)
                 .orElseGet(() -> ItemParticipant.builder()
-                        .item(billItem.get())
+                        .item(item)
                         .createdAt(context.timestamp())
                         .user(context.toUser(userRepository))
                         .build());
 
-        participant.setCoefficient(new BigDecimal(command.getCoefficient()));
+        participant.setCoefficient(command.getCoefficient());
 
-        itemParticipantRepository.save(participant);
+        if (command.getCoefficient().equals(BigDecimal.ZERO)) {
+            itemParticipantRepository.delete(participant);
+        } else {
+            itemParticipantRepository.save(participant);
+        }
 
         return Optional.empty();
     }
