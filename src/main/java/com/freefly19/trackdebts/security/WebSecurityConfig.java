@@ -28,6 +28,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.GET, "/webjars/**").permitAll()
                 .antMatchers(HttpMethod.GET, "/swagger-ui.html", "/swagger-resources/**", "/v2/api-docs").permitAll()
                 .antMatchers(HttpMethod.POST, "/users", "/users/token").permitAll()
+                .antMatchers(HttpMethod.POST, "/liqpay/status").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .addFilterBefore(new AuthenticationFilter(tokenService, dateTimeProvider), UsernamePasswordAuthenticationFilter.class)

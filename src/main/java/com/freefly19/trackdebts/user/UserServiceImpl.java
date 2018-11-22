@@ -1,13 +1,10 @@
 package com.freefly19.trackdebts.user;
 
-import com.freefly19.trackdebts.moneytransaction.MoneyTransaction;
-import com.freefly19.trackdebts.moneytransaction.MoneyTransactionRepository;
 import com.freefly19.trackdebts.security.StatelessTokenService;
 import com.freefly19.trackdebts.security.UserRequestContext;
 import com.spencerwi.either.Either;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Example;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -16,7 +13,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
-import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -54,11 +50,28 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                 .orElseGet(() -> Either.left("Bad credentials"));
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<UserDto> findAll() {
         return userRepository.findAll()
                 .stream().map(UserDto::new)
                 .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public UserExtendedDto getById(long id) {
+        return new UserExtendedDto(userRepository.getOne(id));
+    }
+
+    @Transactional
+    @Override
+    public UserExtendedDto update(UpdateUserInfoCommand cmd, UserRequestContext context) {
+        User user = userRepository.findById(context.getId()).orElseThrow(IllegalAccessError::new);// TODO: handle error
+        user.setFirstName(cmd.getFirstName());
+        user.setLastName(cmd.getLastName());
+        user.setCardNumber(cmd.getCardNumber());
+        return new UserExtendedDto(userRepository.save(user));
     }
 
     @Transactional(readOnly = true)

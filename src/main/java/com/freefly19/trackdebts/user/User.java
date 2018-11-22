@@ -16,4 +16,7 @@ public class User {
     public Long id;
     public String email;
     public String password;
+    public String firstName;
+    public String lastName;
+    public String cardNumber;
 }

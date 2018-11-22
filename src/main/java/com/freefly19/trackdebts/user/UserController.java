@@ -6,10 +6,8 @@ import com.freefly19.trackdebts.security.UserRequestContext;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -22,7 +20,7 @@ public class UserController {
     private final MoneyTransactionService moneyTransactionService;
 
     @ApiOperation(value = "Register new User", response = UserDto.class)
-    @PostMapping(value = "/users")
+    @PostMapping("/users")
     ResponseEntity<?> register(@RequestBody @Valid RegisterUserCommand command) {
         return userService
                 .registerUser(command)
@@ -31,20 +29,32 @@ public class UserController {
     }
 
     @ApiOperation(value = "Obtain Token", response = TokenDto.class)
-    @PostMapping(value = "/users/token")
+    @PostMapping("/users/token")
     ResponseEntity<?> token(@RequestBody ObtainTokenCommand command) {
         return userService.obtainToken(command)
                 .map(AppError::new, Function.identity())
                 .fold(ResponseEntity.badRequest()::body, ResponseEntity::ok);
     }
 
-    @ApiOperation(value = "Return User List", response = TokenDto.class)
-    @GetMapping(value = "/users")
+    @ApiOperation("Return User List")
+    @GetMapping("/users")
     List<UserDto> allUsers() {
         return userService.findAll();
     }
 
-    @GetMapping(value = "/users/current/balance")
+    @GetMapping("/users/current")
+    UserExtendedDto currentUser(@ApiIgnore UserRequestContext context) {
+        return userService.getById(context.getId());
+    }
+
+    @PutMapping("/users/current")
+    UserExtendedDto updateCurrentUser(@RequestBody @Valid UpdateUserInfoCommand cmd,
+                                      @ApiIgnore UserRequestContext context) {
+        return userService.update(cmd, context);
+    }
+
+
+    @GetMapping("/users/current/balance")
     List<UserBalanceDto> balance(UserRequestContext context) {
         return moneyTransactionService.getBalance(context);
     }
