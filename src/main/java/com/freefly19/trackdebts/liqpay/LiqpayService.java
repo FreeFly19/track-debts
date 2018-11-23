@@ -35,8 +35,8 @@ public class LiqpayService {
                          DateTimeProvider dateTimeProvider,
                          LiqpayOrderRepository orderRepository,
                          MoneyTransactionRepository moneyTransactionRepository,
-                         @Value("${LIQPAY_PUBLIC_KEY}") String publicKey,
-                         @Value("${LIQPAY_PRIVATE_KEY}") String privateKey) {
+                         @Value("${app.liqpay.public-key}") String publicKey,
+                         @Value("${app.liqpay.private-key}") String privateKey) {
         this.userRepository = userRepository;
         this.orderRepository = orderRepository;
         this.dateTimeProvider = dateTimeProvider;
@@ -79,6 +79,7 @@ public class LiqpayService {
         }
     }
 
+    //TODO: Implement callback verification
     public void onWebHook(String data) {
         final Map<String, Object> map;
         try {
