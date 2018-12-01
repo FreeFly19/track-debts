@@ -15,6 +15,7 @@ public class MoneyTransactionDto {
     private final BigDecimal amount;
     private final long createdAt;
     private final BillDto bill;
+    private final MoneyTransactionType type;
 
     public MoneyTransactionDto(MoneyTransaction moneyTransaction) {
         this.id = moneyTransaction.getId();
@@ -23,5 +24,13 @@ public class MoneyTransactionDto {
         this.amount = moneyTransaction.getAmount();
         this.createdAt = moneyTransaction.getCreatedAt().getTime();
         this.bill = Objects.nonNull(moneyTransaction.getBill()) ? new BillDto(moneyTransaction.getBill()) : null;
+
+        if (this.bill != null) {
+            this.type = MoneyTransactionType.BILL;
+        } else if (Objects.nonNull(moneyTransaction.getLiqpayOrder()) && Objects.nonNull(moneyTransaction.getLiqpayOrder().getId())) {
+            this.type = MoneyTransactionType.LIQPAY;
+        } else {
+            this.type = MoneyTransactionType.MANUAL;
+        }
     }
 }
