@@ -85,7 +85,7 @@ public class MoneyTransactionService {
 
         return userBalanceMap.keySet()
                 .stream()
-                .filter(key -> !userBalanceMap.get(key).equals(BigDecimal.ZERO))
+                .filter(key -> userBalanceMap.get(key).compareTo(BigDecimal.ZERO) != 0)
                 .map(key -> new UserBalanceDto(userRepository.getOne(key), userBalanceMap.get(key)))
                 .sorted(Comparator.comparing((UserBalanceDto o) -> o.getBalance().abs()).reversed())
                 .collect(Collectors.toList());
