@@ -26,4 +26,8 @@ public class UserDto {
         }
         return firstName + (lastName == null ? "" : (" " + lastName));
     }
+
+    public String getDisplayName() {
+        return Optional.ofNullable(getFullName()).orElse(email);
+    }
 }
