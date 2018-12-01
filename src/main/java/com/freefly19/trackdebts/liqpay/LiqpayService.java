@@ -17,9 +17,7 @@ import java.math.BigDecimal;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Timestamp;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class LiqpayService {
@@ -46,7 +44,7 @@ public class LiqpayService {
     }
 
     @Transactional
-    public LiqpayController.DataWithSig generate(long receiverId, BigDecimal amount, UserRequestContext context) {
+    public DataWithSig generate(long receiverId, BigDecimal amount, UserRequestContext context) {
         String receiverCard = userRepository.getOne(receiverId).getCardNumber();
         String orderId = UUID.randomUUID().toString();
 
@@ -69,33 +67,32 @@ public class LiqpayService {
                 .build();
         orderRepository.save(order);
 
-        try {
-            String data64 = Base64Utils.encodeToString(new ObjectMapper().writeValueAsString(data).getBytes());
-            MessageDigest digest = MessageDigest.getInstance("SHA-1");
-            digest.update((privateKey + data64 + privateKey).getBytes());
-            return new LiqpayController.DataWithSig(data64, Base64Utils.encodeToString(digest.digest()));
-        } catch (NoSuchAlgorithmException | JsonProcessingException e) {
-            throw new IllegalStateException(e);
-        }
+        return sign(data);
     }
 
-    //TODO: Implement callback verification
-    public void onWebHook(String data) {
-        final Map<String, Object> map;
+    public Optional<String> onWebHook(String dataStr, String signature) {
+        final Map<String, Object> data;
         try {
-            map = new ObjectMapper().readValue(data, Map.class);
+            data = new ObjectMapper().readValue(dataStr, Map.class);
         } catch (IOException e) {
             throw new IllegalStateException(e);
         }
 
-        String orderId = map.get("order_id").toString();
-        String status = map.get("status").toString();
+        if (!sign(data).getSignature().equals(signature)) {
+            return Optional.of("Signature doesn't pass verification!");
+        }
+
+        String orderId = data.get("order_id").toString();
+        String status = data.get("status").toString();
         LiqpayOrder order = orderRepository.findByCode(orderId)
                 .orElseThrow(() -> new IllegalStateException("There are no order with '" + orderId + "' order id"));
 
+        boolean itIsNotFirstConfirmation = order.getLogs().stream()
+                .anyMatch(l -> l.getStatus().equalsIgnoreCase("success"));
+
         LiqpayOrderLog orderLog = LiqpayOrderLog.builder()
                 .order(order)
-                .data(data)
+                .data(dataStr)
                 .status(status)
                 .createdAt(new Timestamp(dateTimeProvider.now()))
                 .build();
@@ -103,7 +100,8 @@ public class LiqpayService {
         order.getLogs().add(orderLog);
         orderRepository.save(order);
 
-        if (!status.equalsIgnoreCase("success")) return;
+        if (!status.equalsIgnoreCase("success")) return Optional.empty();
+        if (itIsNotFirstConfirmation) return Optional.empty();
 
         MoneyTransaction moneyTransaction = MoneyTransaction
                 .builder()
@@ -114,5 +112,18 @@ public class LiqpayService {
                 .liqpayOrder(order)
                 .build();
         moneyTransactionRepository.save(moneyTransaction);
+
+        return Optional.empty();
+    }
+
+    private DataWithSig sign(Map<String, Object> data) {
+        try {
+            String data64 = Base64Utils.encodeToString(new ObjectMapper().writeValueAsString(data).getBytes());
+            MessageDigest digest = MessageDigest.getInstance("SHA-1");
+            digest.update((privateKey + data64 + privateKey).getBytes());
+            return new DataWithSig(data64, Base64Utils.encodeToString(digest.digest()));
+        } catch (NoSuchAlgorithmException | JsonProcessingException e) {
+            throw new IllegalStateException(e);
+        }
     }
 }
