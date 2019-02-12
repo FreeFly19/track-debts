@@ -37,4 +37,7 @@ public class MoneyTransaction {
 
     @Column(nullable = false)
     private Timestamp createdAt;
+
+    @Column
+    private String comment;
 }

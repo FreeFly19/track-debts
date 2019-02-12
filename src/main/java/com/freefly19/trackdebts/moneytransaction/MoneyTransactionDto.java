@@ -13,6 +13,7 @@ public class MoneyTransactionDto {
     private final UserDto sender;
     private final UserDto receiver;
     private final BigDecimal amount;
+    private final String comment;
     private final long createdAt;
     private final BillDto bill;
     private final MoneyTransactionType type;
@@ -22,6 +23,7 @@ public class MoneyTransactionDto {
         this.sender = new UserDto(moneyTransaction.getSender());
         this.receiver = new UserDto(moneyTransaction.getReceiver());
         this.amount = moneyTransaction.getAmount();
+        this.comment = moneyTransaction.getComment();
         this.createdAt = moneyTransaction.getCreatedAt().getTime();
         this.bill = Objects.nonNull(moneyTransaction.getBill()) ? new BillDto(moneyTransaction.getBill()) : null;
 
