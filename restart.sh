@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 docker pull freefly19/track-debts
 docker pull freefly19/track-debts-frontend
 

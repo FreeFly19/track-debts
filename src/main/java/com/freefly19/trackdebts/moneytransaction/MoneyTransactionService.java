@@ -54,6 +54,7 @@ public class MoneyTransactionService {
         moneyTransactionRepository.save(
                 MoneyTransaction.builder()
                         .amount(command.getAmount())
+                        .comment(command.getComment())
                         .createdAt(context.timestamp())
                         .receiver(context.toUser(userRepository))
                         .sender(oSender.get())
