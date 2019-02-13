@@ -4,7 +4,6 @@ import lombok.Data;
 import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.DecimalMin;
-import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 
 @Data
@@ -14,6 +13,6 @@ public class ReceiveMoneyCommand {
     @DecimalMin(value = "0", inclusive = false)
     private BigDecimal amount;
 
-    @Length(message = "", max = 300)
+    @Length(max = 200)
     private String comment;
 }
