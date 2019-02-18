@@ -6,6 +6,8 @@ import org.hibernate.validator.constraints.Length;
 import javax.validation.constraints.DecimalMin;
 import java.math.BigDecimal;
 
+import static com.freefly19.trackdebts.moneytransaction.MoneyTransaction.MAX_COMMENT_LENGTH;
+
 @Data
 public class ReceiveMoneyCommand {
     private long senderId;
@@ -13,6 +15,6 @@ public class ReceiveMoneyCommand {
     @DecimalMin(value = "0", inclusive = false)
     private BigDecimal amount;
 
-    @Length(max = 200)
+    @Length(max = MAX_COMMENT_LENGTH)
     private String comment;
 }

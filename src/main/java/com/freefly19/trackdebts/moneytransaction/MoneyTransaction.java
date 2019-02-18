@@ -16,6 +16,8 @@ import java.sql.Timestamp;
 @Getter @Setter
 @Entity
 public class MoneyTransaction {
+    public static final int MAX_COMMENT_LENGTH = 200;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -38,6 +40,6 @@ public class MoneyTransaction {
     @Column(nullable = false)
     private Timestamp createdAt;
 
-    @Column
+    @Column(length = MAX_COMMENT_LENGTH)
     private String comment;
 }
