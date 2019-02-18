@@ -1,4 +1,3 @@
-#!/usr/bin/env bash
 docker exec -t track-debts-pg pg_dumpall -c -U postgres > dumps/dump_`date +%d-%m-%Y"_"%H_%M_%S`.sql
 docker run --rm -v /root/dumps:/backup \
     -e COMPRESSOR=none \
