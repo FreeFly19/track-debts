@@ -2,6 +2,7 @@ package com.freefly19.trackdebts.bill;
 
 import com.freefly19.trackdebts.bill.item.BillItem;
 import com.freefly19.trackdebts.bill.lock.BillLock;
+import com.freefly19.trackdebts.bill.user.BillUser;
 import com.freefly19.trackdebts.user.User;
 import lombok.*;
 
@@ -39,4 +40,7 @@ public class Bill {
     @OneToMany(mappedBy = "bill")
     @OrderBy("id")
     private List<BillItem> items = new ArrayList<>();
+
+    @OneToMany(mappedBy = "bill")
+    private List<BillUser> billUsers = new ArrayList<>();
 }

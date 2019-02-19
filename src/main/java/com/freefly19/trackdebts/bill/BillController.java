@@ -18,8 +18,8 @@ public class BillController {
     private final BillService billService;
 
     @GetMapping("/bills")
-    public Page<BillDto> bills(Pageable pageable) {
-        return billService.findAll(pageable);
+    public Page<BillDto> bills(Pageable pageable, @ApiIgnore UserRequestContext context) {
+        return billService.findAll(pageable, context);
     }
 
     @PostMapping("/bills")
