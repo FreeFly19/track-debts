@@ -24,6 +24,6 @@ public class BillUser {
     @ManyToOne(optional = false)
     private User user;
 
-    //@Column(nullable = false)
-    //private Timestamp createdAt;
+    @Column(nullable = false)
+    private Timestamp createdAt;
 }
