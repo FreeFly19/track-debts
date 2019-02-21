@@ -1,6 +1,5 @@
 package com.freefly19.trackdebts.user;
 
-import com.freefly19.trackdebts.bill.item.BillItem;
 import com.freefly19.trackdebts.bill.user.BillUser;
 import lombok.*;
 

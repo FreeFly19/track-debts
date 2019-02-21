@@ -31,7 +31,7 @@ public class BillService {
     @Transactional(readOnly = true)
     public Page<BillDto> findAll(Pageable pageable, UserRequestContext context) {
         pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by("createdAt").descending());
-
+/*
         Specification<Bill> specification = (rootBill, qBill, cb) -> {
             Predicate predicate = cb.equal(rootBill.get("createdBy").get("id"), context.getId());
 
@@ -45,6 +45,8 @@ public class BillService {
         };
 
         return billRepository.findAll(specification, pageable).map(BillDto::new);
+*/
+        return billRepository.findAll(pageable).map(BillDto::new);
     }
 
     @Transactional
