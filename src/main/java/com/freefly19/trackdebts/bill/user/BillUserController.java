@@ -22,4 +22,11 @@ public class BillUserController {
     public ResponseEntity<UserDto> createBillUsers(@RequestBody @Valid CreateBillUserCommand command, @PathVariable Long billId) {
         return ResponseEntity.ok(billUserService.save(command, billId));
     }
+
+    @DeleteMapping("/bills/{billId}/users/{billUserId}")
+    public ResponseEntity<Void> deleteBillUser(@PathVariable Long billUserId, @PathVariable Long billId) {
+        billUserService.delete(billUserId, billId);
+
+        return ResponseEntity.ok().build();
+    }
 }

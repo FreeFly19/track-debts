@@ -4,9 +4,11 @@ import com.freefly19.trackdebts.bill.BillRepository;
 import com.freefly19.trackdebts.user.UserDto;
 import com.freefly19.trackdebts.user.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.criteria.Predicate;
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
@@ -36,5 +38,21 @@ public class BillUserService {
         billUser.setCreatedAt(new Timestamp(new Date().getTime()));
 
         return new UserDto(billUserRepository.save(billUser).getUser());
+    }
+
+    @Transactional
+    public void delete(Long billUserId, Long billId) {
+        Specification<BillUser> specification = (rootBillUser, qBillUser, cb) -> {
+            Predicate predicate = cb.equal(rootBillUser.get("user").get("id"), billUserId);
+            Predicate predicate2 = cb.equal(rootBillUser.get("bill").get("id"), billId);
+
+            return cb.and(predicate, predicate2);
+        };
+
+        List<BillUser> billUsers = billUserRepository.findAll(specification);
+
+        for (BillUser user : billUsers) {
+            billUserRepository.deleteById(user.getId());
+        }
     }
 }
