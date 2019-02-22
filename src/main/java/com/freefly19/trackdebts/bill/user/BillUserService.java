@@ -31,13 +31,26 @@ public class BillUserService {
 
     @Transactional
     public UserDto save(CreateBillUserCommand command, Long billId) {
-        BillUser billUser = new BillUser();
+        Specification<BillUser> specification = (rootBillUser, qBillUser, cb) -> {
+            Predicate predicate = cb.equal(rootBillUser.get("user").get("id"), command.getBillUserId());
+            Predicate predicate2 = cb.equal(rootBillUser.get("bill").get("id"), billId);
 
-        billUser.setUser(userRepository.getOne(command.getBillUserId()));
-        billUser.setBill(billRepository.getOne(billId));
-        billUser.setCreatedAt(new Timestamp(new Date().getTime()));
+            return cb.and(predicate, predicate2);
+        };
 
-        return new UserDto(billUserRepository.save(billUser).getUser());
+        List<BillUser> billUsers = billUserRepository.findAll(specification);
+
+        BillUser billUser;
+        if (billUsers.isEmpty()) {
+            billUser = new BillUser();
+
+            billUser.setUser(userRepository.getOne(command.getBillUserId()));
+            billUser.setBill(billRepository.getOne(billId));
+            billUser.setCreatedAt(new Timestamp(new Date().getTime()));
+
+            return new UserDto(billUserRepository.save(billUser).getUser());
+        }
+        return new UserDto(billUsers.get(0).getUser());
     }
 
     @Transactional
