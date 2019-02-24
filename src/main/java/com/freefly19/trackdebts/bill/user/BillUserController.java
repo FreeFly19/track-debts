@@ -1,9 +1,11 @@
 package com.freefly19.trackdebts.bill.user;
 
-import com.freefly19.trackdebts.user.UserDto;
+import com.freefly19.trackdebts.security.UserRequestContext;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -14,19 +16,25 @@ public class BillUserController {
     private final BillUserService billUserService;
 
     @GetMapping("bills/{billId}/users")
-    public ResponseEntity<List<UserDto>> findAll() {
-        return ResponseEntity.ok(billUserService.findAll());
+    public ResponseEntity<List<BillUserDto>> findAll(@PathVariable long billId) {
+        return ResponseEntity.ok(billUserService.findByBillId(billId));
     }
 
     @PutMapping("/bills/{billId}/users")
-    public ResponseEntity<UserDto> createBillUsers(@RequestBody @Valid CreateBillUserCommand command, @PathVariable Long billId) {
-        return ResponseEntity.ok(billUserService.save(command, billId));
+    public ResponseEntity<BillUserDto> createBillUsers(@RequestBody @Valid CreateBillUserCommand command,
+                                                       @PathVariable Long billId,
+                                                       @ApiIgnore UserRequestContext context) {
+        return billUserService.save(context, command, billId)
+                .map(ResponseEntity::ok)
+                .orElseGet(ResponseEntity.status(HttpStatus.UNAUTHORIZED)::build);
     }
 
     @DeleteMapping("/bills/{billId}/users/{billUserId}")
-    public ResponseEntity<Void> deleteBillUser(@PathVariable Long billUserId, @PathVariable Long billId) {
-        billUserService.delete(billUserId, billId);
-
-        return ResponseEntity.ok().build();
+    public ResponseEntity<Void> deleteBillUser(@PathVariable long billId,
+                                               @PathVariable long billUserId,
+                                               @ApiIgnore UserRequestContext context) {
+        return billUserService.delete(context, billUserId) ?
+                ResponseEntity.ok().build():
+                ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 }

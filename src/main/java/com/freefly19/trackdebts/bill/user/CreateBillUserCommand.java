@@ -2,7 +2,10 @@ package com.freefly19.trackdebts.bill.user;
 
 import lombok.Data;
 
+import javax.validation.constraints.NotNull;
+
 @Data
 public class CreateBillUserCommand {
-    private Long billUserId;
+    @NotNull
+    private Long userId;
 }

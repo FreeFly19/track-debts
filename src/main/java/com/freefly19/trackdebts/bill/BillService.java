@@ -4,17 +4,20 @@ import com.freefly19.trackdebts.bill.lock.BillLock;
 import com.freefly19.trackdebts.bill.lock.BillLockRepository;
 import com.freefly19.trackdebts.bill.lock.BillLockedEvent;
 import com.freefly19.trackdebts.bill.user.BillUser;
+import com.freefly19.trackdebts.bill.user.BillUserRepository;
 import com.freefly19.trackdebts.security.UserRequestContext;
 import com.freefly19.trackdebts.user.UserRepository;
 import com.spencerwi.either.Either;
 import lombok.AllArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.criteria.*;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Objects;
@@ -25,28 +28,17 @@ import java.util.Optional;
 public class BillService {
     private final BillRepository billRepository;
     private final UserRepository userRepository;
+    private final BillUserRepository billUserRepository;
     private final BillLockRepository billLockRepository;
     private final ApplicationEventPublisher eventPublisher;
 
     @Transactional(readOnly = true)
     public Page<BillDto> findAll(Pageable pageable, UserRequestContext context) {
         pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by("createdAt").descending());
-/*
-        Specification<Bill> specification = (rootBill, qBill, cb) -> {
-            Predicate predicate = cb.equal(rootBill.get("createdBy").get("id"), context.getId());
-
-            CriteriaQuery<BillUser> qBillUser = cb.createQuery(BillUser.class);
-            Root<BillUser> rootBillUser = qBillUser.from(BillUser.class);
-            qBillUser.where(cb.equal(rootBillUser.get("user").get("id"), context.getId()));
-
-            Predicate equalPred = cb.equal(rootBillUser.join("bill").get("id"), rootBill.get("id"));
-
-            return cb.or(predicate, equalPred);
-        };
+        Specification<Bill> specification = (rootBill, qBill, cb) ->
+                rootBill.join("billUsers").join("user").get("id").in(context.getId());
 
         return billRepository.findAll(specification, pageable).map(BillDto::new);
-*/
-        return billRepository.findAll(pageable).map(BillDto::new);
     }
 
     @Transactional
@@ -59,7 +51,15 @@ public class BillService {
                 .items(new ArrayList<>())
                 .build();
 
-        return new BillDto(billRepository.save(bill));
+        bill = billRepository.save(bill);
+
+        BillUser billUser = new BillUser();
+        billUser.setBill(bill);
+        billUser.setUser(context.toUser(userRepository));
+        billUser.setCreatedAt(context.timestamp());
+        billUserRepository.save(billUser);
+
+        return new BillDto(bill);
     }
 
     @Transactional
