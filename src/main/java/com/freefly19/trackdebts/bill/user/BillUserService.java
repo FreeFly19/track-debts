@@ -4,6 +4,7 @@ import com.freefly19.trackdebts.bill.Bill;
 import com.freefly19.trackdebts.bill.BillRepository;
 import com.freefly19.trackdebts.security.UserRequestContext;
 import com.freefly19.trackdebts.user.UserRepository;
+import com.spencerwi.either.Either;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -24,10 +25,17 @@ public class BillUserService {
     private final BillRepository billRepository;
 
     @Transactional
-    public Optional<BillUserDto> save(UserRequestContext context, CreateBillUserCommand command, Long billId) {
-        if (!billRepository.getOne(billId).getCreatedBy().getId().equals(context.getId())) {
-            return Optional.empty();
+    public Either<String, Optional<BillUserDto>> save(UserRequestContext context, CreateBillUserCommand command, Long billId) {
+        Optional<Bill> bill = billRepository.findById(billId);
+
+        if (bill.get().getBillLock() != null) {
+            return Either.left("You cannot create user for locked bill");
         }
+
+        if (!billRepository.getOne(billId).getCreatedBy().getId().equals(context.getId())) {
+            return Either.right(Optional.empty());
+        }
+
         Specification<BillUser> specification = (rootBillUser, qBillUser, cb) -> {
             Predicate userPredicate = cb.equal(rootBillUser.get("user").get("id"), command.getUserId());
             Predicate billPredicate = cb.equal(rootBillUser.get("bill").get("id"), billId);
@@ -48,19 +56,24 @@ public class BillUserService {
                     return billUserRepository.save(bu);
                 });
 
-        return Optional.of(new BillUserDto(billUser));
+        return Either.right(Optional.of(new BillUserDto(billUser)));
     }
 
     @Transactional
-    public boolean delete(UserRequestContext context, Long billUserId) {
+    public Either<String, Optional<Boolean>>  delete(UserRequestContext context, Long billUserId) {
         Bill bill = billUserRepository.getOne(billUserId).getBill();
 
+        Optional<Bill> ob = Optional.ofNullable(bill);
+        if (ob.get().getBillLock() != null) {
+            return Either.left("You cannot delete user for locked bill");
+        }
+
         if (!bill.getCreatedBy().getId().equals(context.getId())) {
-            return false;
+            return Either.right(Optional.of(Boolean.FALSE));
         }
 
         billUserRepository.deleteById(billUserId);
-        return true;
+        return Either.right(Optional.of(Boolean.TRUE));
     }
 
     @Transactional(readOnly = true)
