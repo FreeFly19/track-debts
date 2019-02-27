@@ -20,8 +20,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -91,7 +93,20 @@ public class BillService {
     }
 
     public Either<String, BillDto> get(long id, UserRequestContext context) {
-        return billRepository.findById(id)
+        Optional<Bill> oBill = billRepository.findById(id);
+        if (!oBill.isPresent()) {
+            return Either.left("Bill not exists");
+        }
+
+        List<BillUser> billUsers = oBill.get().getBillUsers().stream()
+                .filter(object -> object.getUser().getId() == context.getId())
+                .collect(Collectors.toList());
+
+        if (billUsers.isEmpty()) {
+            return Either.left("Access is denied");
+        }
+
+        return oBill
                 .map(bill -> Either.<String, BillDto>right(new BillDto(bill)))
                 .orElseGet(() -> Either.left("Bill with " + id +" id not found"));
     }
