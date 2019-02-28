@@ -3,6 +3,8 @@ package com.freefly19.trackdebts.bill.user;
 import com.freefly19.trackdebts.bill.Bill;
 import com.freefly19.trackdebts.bill.BillRepository;
 import com.freefly19.trackdebts.security.UserRequestContext;
+import com.freefly19.trackdebts.user.User;
+import com.freefly19.trackdebts.user.UserDto;
 import com.freefly19.trackdebts.user.UserRepository;
 import com.spencerwi.either.Either;
 import lombok.RequiredArgsConstructor;
@@ -60,8 +62,9 @@ public class BillUserService {
     }
 
     @Transactional
-    public Either<String, Optional<Boolean>>  delete(UserRequestContext context, Long billUserId) {
-        Bill bill = billUserRepository.getOne(billUserId).getBill();
+    public Either<String, Optional<Boolean>> delete(UserRequestContext context, Long billUserId) {
+        BillUser billUser = billUserRepository.getOne(billUserId);
+        Bill bill = billUser.getBill();
 
         Optional<Bill> ob = Optional.ofNullable(bill);
         if (ob.get().getBillLock() != null) {
@@ -69,7 +72,11 @@ public class BillUserService {
         }
 
         if (!bill.getCreatedBy().getId().equals(context.getId())) {
-            return Either.right(Optional.of(Boolean.FALSE));
+            return Either.left("Unauthorized");
+        }
+
+        if (billUser.getUser().getId().equals(bill.getCreatedBy().getId())) {
+            return Either.left("You cannot delete yourself");
         }
 
         billUserRepository.deleteById(billUserId);
@@ -84,6 +91,17 @@ public class BillUserService {
         return billUserRepository.findAll(billUserSpecification)
                 .stream()
                 .map(BillUserDto::new)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<UserDto> availableUsers(long billId) {
+        Optional<Bill> bill = billRepository.findById(billId);
+
+        return userRepository.findAll()
+                .stream()
+                .filter(object -> object.getId() != bill.get().getCreatedBy().getId())
+                .map(UserDto::new)
                 .collect(Collectors.toList());
     }
 }
