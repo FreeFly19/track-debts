@@ -79,7 +79,7 @@ public class BillService {
         }
 
         if (Objects.nonNull(bill.getBillLock()) && Objects.nonNull(bill.getBillLock().getId())) {
-            return Either.<String, BillDto>right(new BillDto(bill));
+            return Either.right(new BillDto(bill));
         }
 
         BillLock lock = BillLock.builder()
@@ -89,7 +89,7 @@ public class BillService {
         bill.setBillLock(billLockRepository.save(lock));
         eventPublisher.publishEvent(new BillLockedEvent(billId, context));
 
-        return Either.<String, BillDto>right(new BillDto(bill));
+        return Either.right(new BillDto(bill));
     }
 
     public Either<String, BillDto> get(long id, UserRequestContext context) {

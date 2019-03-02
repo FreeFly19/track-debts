@@ -1,7 +1,10 @@
 package com.freefly19.trackdebts.user;
 
 import com.freefly19.trackdebts.bill.user.BillUser;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.util.ArrayList;

@@ -3,7 +3,6 @@ package com.freefly19.trackdebts.bill.user;
 import com.freefly19.trackdebts.bill.Bill;
 import com.freefly19.trackdebts.bill.BillRepository;
 import com.freefly19.trackdebts.security.UserRequestContext;
-import com.freefly19.trackdebts.user.User;
 import com.freefly19.trackdebts.user.UserDto;
 import com.freefly19.trackdebts.user.UserRepository;
 import com.spencerwi.either.Either;

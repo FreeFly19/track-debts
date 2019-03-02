@@ -1,12 +1,8 @@
 package com.freefly19.trackdebts.bill.user;
 
 import com.freefly19.trackdebts.AppError;
-import com.freefly19.trackdebts.bill.BillDto;
-import com.freefly19.trackdebts.bill.BillService;
 import com.freefly19.trackdebts.security.UserRequestContext;
 import com.freefly19.trackdebts.user.UserDto;
-import com.freefly19.trackdebts.user.UserService;
-import com.spencerwi.either.Either;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
