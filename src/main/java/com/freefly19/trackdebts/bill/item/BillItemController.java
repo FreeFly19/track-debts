@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
+import java.util.List;
 import java.util.function.Function;
 
 @RestController
@@ -27,5 +28,10 @@ public class BillItemController {
                 .map(AppError::new)
                 .map(ResponseEntity.badRequest()::body)
                 .orElseGet(ResponseEntity.ok()::build);
+    }
+
+    @GetMapping("/bills/{billId}/autocompleteItem")
+    public ResponseEntity<List<BillItemDto>> autocompleteProductItem(@PathVariable Long billId, @RequestParam String product) {
+        return ResponseEntity.ok(billService.search(billId, product));
     }
 }

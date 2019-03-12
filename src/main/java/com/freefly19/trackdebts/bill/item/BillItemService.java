@@ -1,20 +1,22 @@
 package com.freefly19.trackdebts.bill.item;
 
-import com.freefly19.trackdebts.AppError;
 import com.freefly19.trackdebts.bill.BillRepository;
 import com.freefly19.trackdebts.bill.item.participant.ItemParticipantRepository;
 import com.freefly19.trackdebts.security.UserRequestContext;
 import com.freefly19.trackdebts.util.DateTimeProvider;
 import com.spencerwi.either.Either;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.criteria.Predicate;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
-import java.util.stream.DoubleStream;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -66,5 +68,23 @@ public class BillItemService {
         billItemRepository.delete(item);
 
         return Optional.empty();
+    }
+
+    @Transactional
+    public List<BillItemDto> search(Long billId, String product) {
+        if (product.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        Specification<BillItem> specification = (rootBillItem, qBillItem, cb) -> {
+            Predicate billItemPredicate = cb.like(rootBillItem.get("title"), "%" + product + "%");
+
+            return billItemPredicate;
+        };
+
+        return billItemRepository.findAll(specification)
+                .stream()
+                .map(BillItemDto::new)
+                .collect(Collectors.toList());
     }
 }
