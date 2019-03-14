@@ -6,6 +6,8 @@ import com.freefly19.trackdebts.security.UserRequestContext;
 import com.freefly19.trackdebts.util.DateTimeProvider;
 import com.spencerwi.either.Either;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -77,12 +79,13 @@ public class BillItemService {
         }
 
         Specification<BillItem> specification = (rootBillItem, qBillItem, cb) -> {
-            Predicate billItemPredicate = cb.like(rootBillItem.get("title"), "%" + product + "%");
+            Predicate billItemPredicate = cb.like(cb.lower(rootBillItem.get("title")), "%" + product.toLowerCase() + "%");
 
             return billItemPredicate;
         };
 
-        return billItemRepository.findAll(specification)
+        Pageable limit = PageRequest.of(0,5);
+        return billItemRepository.findAll(specification, limit)
                 .stream()
                 .map(BillItemDto::new)
                 .collect(Collectors.toList());
