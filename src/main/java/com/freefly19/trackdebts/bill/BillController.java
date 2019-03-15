@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
+import java.util.List;
 import java.util.function.Function;
 
 @RequiredArgsConstructor
@@ -41,5 +42,10 @@ public class BillController {
         return billService.lock(billId, context)
                 .map(AppError::new, Function.identity())
                 .fold(ResponseEntity.badRequest()::body, ResponseEntity::ok);
+    }
+
+    @GetMapping("/bills/autocompleteRestaurant")
+    public ResponseEntity<List<BillDto>> autocompleteRestaurant(@RequestParam String restaurant) {
+        return ResponseEntity.ok(billService.search(restaurant));
     }
 }

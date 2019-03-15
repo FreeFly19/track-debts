@@ -18,6 +18,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.criteria.Predicate;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
@@ -109,5 +110,24 @@ public class BillService {
         return oBill
                 .map(bill -> Either.<String, BillDto>right(new BillDto(bill)))
                 .orElseGet(() -> Either.left("Bill with " + id +" id not found"));
+    }
+
+    @Transactional
+    public List<BillDto> search(String restaurant) {
+        if (restaurant.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        Specification<Bill> specification = (rootBill, qBill, cb) -> {
+            Predicate billPredicate = cb.like(cb.lower(rootBill.get("title")), "%" + restaurant.toLowerCase() + "%");
+
+            return billPredicate;
+        };
+
+        Pageable limit = PageRequest.of(0,10);
+        return billRepository.findAll(specification, limit)
+                .stream()
+                .map(BillDto::new)
+                .collect(Collectors.toList());
     }
 }
