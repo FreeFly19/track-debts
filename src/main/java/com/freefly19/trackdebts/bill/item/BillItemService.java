@@ -1,13 +1,12 @@
 package com.freefly19.trackdebts.bill.item;
 
+import com.freefly19.trackdebts.bill.Bill;
 import com.freefly19.trackdebts.bill.BillRepository;
 import com.freefly19.trackdebts.bill.item.participant.ItemParticipantRepository;
 import com.freefly19.trackdebts.security.UserRequestContext;
 import com.freefly19.trackdebts.util.DateTimeProvider;
 import com.spencerwi.either.Either;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -78,15 +77,23 @@ public class BillItemService {
             return new ArrayList<>();
         }
 
+        Optional<Bill> currentBill = billRepository.findById(billId);
+        if (!currentBill.isPresent()) {
+            return new ArrayList<>();
+        }
+
         Specification<BillItem> specification = (rootBillItem, qBillItem, cb) -> {
             Predicate billItemPredicate = cb.like(cb.lower(rootBillItem.get("title")), "%" + product.toLowerCase() + "%");
+            Predicate billPredicate = cb.equal(cb.lower(rootBillItem.get("bill").get("title")), currentBill.get().getTitle().toLowerCase());
 
-            return billItemPredicate;
+            Predicate and = cb.and(billItemPredicate, billPredicate);
+
+            return and;
         };
 
-        Pageable limit = PageRequest.of(0,5);
-        return billItemRepository.findAll(specification, limit)
+        return billItemRepository.findAll(specification)
                 .stream()
+                .limit(5)
                 .map(BillItemDto::new)
                 .collect(Collectors.toList());
     }
