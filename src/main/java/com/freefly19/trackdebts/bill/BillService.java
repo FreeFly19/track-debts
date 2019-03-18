@@ -124,9 +124,9 @@ public class BillService {
             return billPredicate;
         };
 
-        Pageable limit = PageRequest.of(0,10);
-        return billRepository.findAll(specification, limit)
+        return billRepository.findAll(specification)
                 .stream()
+                .limit(10)
                 .map(BillDto::new)
                 .collect(Collectors.toList());
     }
