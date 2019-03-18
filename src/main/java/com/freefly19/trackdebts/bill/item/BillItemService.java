@@ -12,6 +12,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import javax.persistence.criteria.Subquery;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -85,10 +87,16 @@ public class BillItemService {
         Specification<BillItem> specification = (rootBillItem, qBillItem, cb) -> {
             Predicate billItemPredicate = cb.like(cb.lower(rootBillItem.get("title")), "%" + product.toLowerCase() + "%");
             Predicate billPredicate = cb.equal(cb.lower(rootBillItem.get("bill").get("title")), currentBill.get().getTitle().toLowerCase());
+            Predicate and1 = cb.and(billItemPredicate, billPredicate);
 
-            Predicate and = cb.and(billItemPredicate, billPredicate);
+            Subquery<Number> subQueryBillItem = qBillItem.subquery(Number.class);
+            Root<BillItem> rootSubBillItem = subQueryBillItem.from(BillItem.class);
 
-            return and;
+            subQueryBillItem.select(cb.max(rootSubBillItem.get("createdAt")));
+            subQueryBillItem.groupBy(cb.lower(rootSubBillItem.get("title")));
+            Predicate and2 = cb.in(rootBillItem.get("createdAt")).value(subQueryBillItem);
+
+            return cb.and(and1, and2);
         };
 
         return billItemRepository.findAll(specification)
