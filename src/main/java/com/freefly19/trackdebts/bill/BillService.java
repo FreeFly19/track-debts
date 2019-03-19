@@ -19,6 +19,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import javax.persistence.criteria.Subquery;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
@@ -121,7 +123,15 @@ public class BillService {
         Specification<Bill> specification = (rootBill, qBill, cb) -> {
             Predicate billPredicate = cb.like(cb.lower(rootBill.get("title")), "%" + restaurant.toLowerCase() + "%");
 
-            return billPredicate;
+            Subquery<Number> subQueryBill = qBill.subquery(Number.class);
+            Root<Bill> rootSubBill = subQueryBill.from(Bill.class);
+
+            subQueryBill.select(cb.max(rootSubBill.get("id")));
+            subQueryBill.groupBy(cb.lower(rootSubBill.get("title")));
+
+            Predicate uniqIdPredicate = cb.in(rootBill.get("id")).value(subQueryBill);
+
+            return cb.and(billPredicate, uniqIdPredicate);
         };
 
         return billRepository.findAll(specification)
