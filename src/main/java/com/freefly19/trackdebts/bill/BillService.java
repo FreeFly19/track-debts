@@ -114,7 +114,7 @@ public class BillService {
                 .orElseGet(() -> Either.left("Bill with " + id +" id not found"));
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<BillDto> search(String restaurant) {
         if (restaurant.isEmpty()) {
             return new ArrayList<>();

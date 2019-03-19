@@ -73,7 +73,7 @@ public class BillItemService {
         return Optional.empty();
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<BillItemDto> search(Long billId, String product) {
         if (product.isEmpty()) {
             return new ArrayList<>();
