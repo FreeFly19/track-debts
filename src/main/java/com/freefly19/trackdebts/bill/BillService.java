@@ -115,7 +115,7 @@ public class BillService {
     }
 
     @Transactional(readOnly = true)
-    public List<BillDto> search(String restaurant) {
+    public List<String> search(String restaurant) {
         if (restaurant.isEmpty()) {
             return new ArrayList<>();
         }
@@ -137,7 +137,7 @@ public class BillService {
         return billRepository.findAll(specification)
                 .stream()
                 .limit(10)
-                .map(BillDto::new)
+                .map(Bill::getTitle)
                 .collect(Collectors.toList());
     }
 }

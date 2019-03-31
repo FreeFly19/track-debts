@@ -28,9 +28,9 @@ public class BillController {
         return billService.save(command, context);
     }
 
-    @ApiOperation(value = "Create Bill", response = BillDto.class)
+    @ApiOperation(value = "Get Bill By Id", response = BillDto.class)
     @GetMapping("/bills/{id}")
-    public ResponseEntity<?> createBill(@PathVariable long id, @ApiIgnore UserRequestContext context) {
+    public ResponseEntity<?> getBillById(@PathVariable long id, @ApiIgnore UserRequestContext context) {
         return billService.get(id, context)
                 .map(AppError::new, Function.identity())
                 .fold(ResponseEntity.badRequest()::body, ResponseEntity::ok);
@@ -44,8 +44,9 @@ public class BillController {
                 .fold(ResponseEntity.badRequest()::body, ResponseEntity::ok);
     }
 
-    @GetMapping("/bills/autocompleteRestaurant")
-    public ResponseEntity<List<BillDto>> autocompleteRestaurant(@RequestParam String restaurant) {
-        return ResponseEntity.ok(billService.search(restaurant));
+    @ApiOperation(value = "Bill Names")
+    @GetMapping("/bill-names")
+    public ResponseEntity<List<String>> getBillNames(@RequestParam String search) {
+        return ResponseEntity.ok(billService.search(search));
     }
 }
