@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>Check</title>
+</head>
+<body>
+<table
+    border="0"
+    cellpadding="0"
+    cellspacing="0"
+    style="
+        margin:0;
+        padding:0;
+        font-family: sans-serif;
+        font-size: 16px;
+        background-color: #fbfbfb;"
+        width="100%">
+    <tr>
+        <td align="center">
+            <table
+                border="0"
+                cellpadding="0"
+                cellspacing="0"
+                style="
+                    margin:0;
+                    padding:0;
+                    max-width: 600px;
+                    width: 100%;
+                    border: 1px solid #0273d4;
+                    background-color: white;"
+                width="100%">
+                <tr>
+                    <td
+                        colspan="3"
+                        style="
+                            height: 60px;
+                            background-color: #0273d4;
+                            text-align: center;
+                            line-height: 50px;
+                            font-size: 30px;
+                            font-weight: bold;
+                            color: #fff;">
+
+                        <h3>Track debts</h3>
+                    </td>
+                </tr>
+                <tr>
+                    <td
+                        style="
+                            padding: 20px;
+                            text-align: center;">
+                        <table border="0" align="center">
+                            <tr>
+                                <td style="font-size: 19px;" th:text="'Hello, ' + ${USER}"></td>
+                            </tr>
+                            <tr>
+                                <td style="padding-top: 16px;line-height: 25px;">
+                                    <span th:text=" 'You took part in the ' +
+                                    ${BILL} + ' bill. Please, check in there.'"></span>
+                                </td>
+                            </tr>
+                            <tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+</body>
+</html>
