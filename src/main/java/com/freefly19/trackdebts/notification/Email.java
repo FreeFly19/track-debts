@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Getter
 public class Email {
+    private final String sender;
     private final String receiver;
     private final String subject;
     private final String body;

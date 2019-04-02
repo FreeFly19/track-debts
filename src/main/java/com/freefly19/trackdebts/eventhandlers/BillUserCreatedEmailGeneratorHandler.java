@@ -22,6 +22,7 @@ public class BillUserCreatedEmailGeneratorHandler {
     public void onBillUserCreatedEvent(BillUserCreatedEvent event) {
         BillUser billUser = repository.getOne(event.getBillUserId());
         Email email = Email.builder()
+                .sender("no-reply@track-debts.com")
                 .receiver(billUser.getUser().getEmail())
                 .subject("You've been added to " + billUser.getBill().getTitle() + " bill")
                 .body(templateForBillUserEmail(billUser))
@@ -31,8 +32,7 @@ public class BillUserCreatedEmailGeneratorHandler {
 
     private String templateForBillUserEmail(BillUser billUser) {
         Context context = new Context();
-        context.setVariable("USER", billUser.getUser().getFirstName() + " " +
-                billUser.getUser().getLastName());
+        context.setVariable("USER", billUser.getUser().getDisplayName());
         context.setVariable("BILL", billUser.getBill().getTitle());
 
         return templateEngine.process("email", context);

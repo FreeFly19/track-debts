@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -29,4 +30,14 @@ public class User {
     @OneToMany(mappedBy = "user")
     private List<BillUser> billUsers = new ArrayList<>();
 
+    public String getFullName() {
+        if (firstName == null) {
+            return Optional.ofNullable(lastName).orElse(null);
+        }
+        return firstName + (lastName == null ? "" : (" " + lastName));
+    }
+
+    public String getDisplayName() {
+        return Optional.ofNullable(getFullName()).orElse(email);
+    }
 }
