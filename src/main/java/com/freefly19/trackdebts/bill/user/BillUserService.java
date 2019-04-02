@@ -2,11 +2,13 @@ package com.freefly19.trackdebts.bill.user;
 
 import com.freefly19.trackdebts.bill.Bill;
 import com.freefly19.trackdebts.bill.BillRepository;
+import com.freefly19.trackdebts.notification.EmailService;
 import com.freefly19.trackdebts.security.UserRequestContext;
 import com.freefly19.trackdebts.user.UserDto;
 import com.freefly19.trackdebts.user.UserRepository;
 import com.spencerwi.either.Either;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +26,7 @@ public class BillUserService {
     private final BillUserRepository billUserRepository;
     private final UserRepository userRepository;
     private final BillRepository billRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public Either<String, Optional<BillUserDto>> save(UserRequestContext context, CreateBillUserCommand command, Long billId) {
@@ -56,6 +59,8 @@ public class BillUserService {
 
                     return billUserRepository.save(bu);
                 });
+
+        eventPublisher.publishEvent(new BillUserCreatedEvent(billUser.getId()));
 
         return Either.right(Optional.of(new BillUserDto(billUser)));
     }

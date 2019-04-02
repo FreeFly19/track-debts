@@ -1,4 +1,4 @@
-package com.freefly19.trackdebts;
+package com.freefly19.trackdebts.eventhandlers;
 
 import com.freefly19.trackdebts.bill.Bill;
 import com.freefly19.trackdebts.bill.BillRepository;
