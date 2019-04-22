@@ -1,5 +1,6 @@
 package com.freefly19.trackdebts.bill.billrecognition;
 
+import com.freefly19.trackdebts.AppError;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,8 +15,10 @@ public class BillRecognitionController {
     private final BillRecognitionService billRecognitionService;
 
     @PostMapping("/bill-recognition")
-    public ResponseEntity<Void> BillRecognition(@RequestBody @Valid ReceiveImageCommand command) {
-        billRecognitionService.callHttpClient(command);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<?> BillRecognition(@RequestBody @Valid ReceiveImageCommand command) {
+        return billRecognitionService.callHttpClient(command)
+                .map(AppError::new)
+                .map(ResponseEntity.badRequest()::body)
+                .orElseGet(ResponseEntity.ok()::build);
     }
 }
