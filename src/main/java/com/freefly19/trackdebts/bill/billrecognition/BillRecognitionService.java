@@ -2,6 +2,7 @@ package com.freefly19.trackdebts.bill.billrecognition;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import com.freefly19.trackdebts.bill.billrecognition.parser.BillParseService;
 import lombok.RequiredArgsConstructor;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -16,6 +17,8 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class BillRecognitionService {
+    private final BillParseService billParseService;
+
     public Optional<String> callHttpClient(ReceiveImageCommand command) {
         int statusCode;
 
@@ -30,7 +33,7 @@ public class BillRecognitionService {
 
             statusCode = response.getStatusLine().getStatusCode();
 
-            String content = EntityUtils.toString(response.getEntity());
+            billParseService.selectBillParser(EntityUtils.toString(response.getEntity()));
         } catch (Exception e) {
             e.printStackTrace();
             return Optional.of("Connection to server is refused");
