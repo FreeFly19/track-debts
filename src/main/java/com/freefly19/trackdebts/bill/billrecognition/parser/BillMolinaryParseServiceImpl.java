@@ -9,11 +9,11 @@ import java.util.regex.Pattern;
 public class BillMolinaryParseServiceImpl implements BillParse {
     @Override
     public BillParseDto parseBill(String content) {
-        Pattern pattern = Pattern.compile("");
+        Pattern pattern = Pattern.compile("^Отпечатано:\\s((\\d{2}\\.){2}\\d{4}\\s\\d{2}\\:\\d{2})|(?<=\\d\\)\\s).*?(?=\\n)|(\\d*[,]\\d+)", Pattern.MULTILINE);
         Matcher matcher = pattern.matcher(content);
 
         while (matcher.find()) {
-            // TODO: matcher.group();
+            // TODO: implement DTOs filling
         }
         return new BillParseDto();
     }
